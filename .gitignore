@@ -17,4 +17,5 @@ project/plugins/project/
 .project
 .scala_dependencies
 .worksheet
+.settings
 .metadata
