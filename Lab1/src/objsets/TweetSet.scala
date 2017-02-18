@@ -1,7 +1,5 @@
 package objsets
 
-//test
-
 import TweetReader._
 import objsets.TweetReader
 
