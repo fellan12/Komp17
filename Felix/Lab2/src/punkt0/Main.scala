@@ -45,6 +45,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     val ctx = processOptions(args)
+    displayHelp();
 
     // TODO: run lexer phase
   }
