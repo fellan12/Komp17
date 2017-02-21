@@ -108,12 +108,19 @@ object Lexer extends Phase[File, Iterator[Token]] {
         //Comments or DIV
         else if (current == '/') {
           goForward;
+          println(current);
           if(current == '/') {
             // comment en rad
+            println(current);
             while (!reachedEOF && current != '\n') {
               goForward;
+              println(current);
+              //next;
             }
             goForward;
+            //next;
+            //println(current);
+           
           }
           else if(current == '*') {
             // comment fram till */
@@ -123,7 +130,8 @@ object Lexer extends Phase[File, Iterator[Token]] {
               prev = current;
               goForward;
             }
-            goForward;
+            //goForward;
+            next;
               
           }
           else {
