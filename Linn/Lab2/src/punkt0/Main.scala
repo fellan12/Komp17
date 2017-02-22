@@ -1,7 +1,6 @@
 package punkt0
 
 import java.io.File
-
 import lexer._
 
 
@@ -23,8 +22,10 @@ object Main {
         var lxr = Lexer
         var it = lxr.run(new File(args.last))(ctx)
         while ( it.hasNext ) {
-          println(it.next() );
+          var tok = it.next;
+          println(tok + "(" + tok.line + ":" + tok.column + ")");
         }
+        //println(it.next());
         
       case f :: args =>
         ctx = ctx.copy(file = Some(new File(f)))
@@ -53,7 +54,7 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    var input = Array("--token", "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Lab2/testprograms/lab2/valid/positions.p0");
+    var input = Array("--token", "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Lab2/testprograms/lab2/valid/crazyids.p0");
     val ctx = processOptions(input)
 
     // TODO: run lexer phase

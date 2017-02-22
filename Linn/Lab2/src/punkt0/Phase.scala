@@ -1,5 +1,6 @@
 package punkt0
 
+
 abstract class Phase[-F, +T] {
   self =>
 

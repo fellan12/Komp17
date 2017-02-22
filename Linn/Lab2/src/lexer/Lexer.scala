@@ -6,22 +6,50 @@ import java.lang.Boolean
 import java.util.ArrayList;
 
 
+
 object Lexer extends Phase[File, Iterator[Token]] {
   import Reporter._
+  var bugging = false
+  
+  def debug(str: String): Unit = {
+    if (bugging) {
+      println(str)
+    }
+  }
+  
+  def printcurr(curr: Char) : Unit = {
+    if (bugging) {
+      if (curr == '\n') {
+        println("current is newline")
+      }
+      else {
+        println("Current: " + curr)
+      }
+    }
+  }
 
   def run(f: File)(ctx: Context): Iterator[Token] = {
     val source = scala.io.Source.fromFile(f)
     // TODO: implement this method
+    debug("run function starts")
+    
 
     return new Iterator[Token] {
        var current = source.ch;
+       debug("start current:" + current)
        var reachedEOF = false;
+       var EOFPrinted = false;
        goForward;
+       printcurr(current)
        
        def goForward : Unit = {
+         debug("går in i goforw")
          if (source.hasNext) {
+           debug("char finns")
 			    current = source.next
+			     debug("Current är nu: " + current)
   		   } else {
+  		      debug("reachedEOF")
   			    reachedEOF = true
   			 }
        }
@@ -29,118 +57,155 @@ object Lexer extends Phase[File, Iterator[Token]] {
       /*
        * Tokens left?
        */
-      def hasNext = {
-          !reachedEOF;      //END OF FILE
+      def hasNext  = {
+        debug("checks if next")
+        !EOFPrinted  //END OF FILE  
+        
       }
 
       /*
        * Return next token
        */
       def next : Token = {
+        debug("går in i next")
         var token : Token = new Token(BAD);
         var token_position = source.pos;
 
         
-        if(reachedEOF){
-          token = new Token(EOF);
-          token.setPos(f, source.pos);
-          return token;
+        if(reachedEOF) {
+          debug("checks if reachedEOF")
+          token = new Token(EOF)
+          token.setPos(f, source.pos)
+          debug("returns EOF")
+          EOFPrinted = true;
+          return token
         }
         
         // Skip whitespace
         while(current.isWhitespace){
-          goForward;
-          return next;
+          debug("skips whitespace")
+          goForward
+          return next
         }
         
-        //ID and Keyword
-        if(current.isLetter){    //Start of ID or Keyword
-          var str = "";          //Write as StringBuilder?
-          while(!reachedEOF && (current.isLetterOrDigit || current == '_')){
-            str += current;
-            goForward;
-          }
-          
-          var tkRes = match_ID_or_Keyword(str);
-          
-          if(tkRes == IDKIND ){
-            token = new ID(str)
-            token.setPos(f, token_position)
-          }else{
-            token = new Token(tkRes);
-            token.setPos(f,token_position);
-          }
-        }
-        //Int Literals
-        else if(current.isDigit){
-          token = new INTLIT(0);
-          while(current == '0'){
-            goForward;
-          }
-          if(current.isDigit){
-            var counter = 0;
-            while(!reachedEOF && current.isDigit){
-              counter += 10*counter + current.asDigit;
-              goForward;
-            }
-            token = new INTLIT(counter);
-            token.setPos(f, token_position);
-          }
-        }
-        //String Literal
-        else if(current == '"'){
+          //Removes comment if it exists, otherwise returns DIV token
+        if (current == '/') {
+          debug("current var /")
           goForward;
-          var str = "";
-          while(!reachedEOF && current != '"'){
-            if(current == '\n'){
-              fatal("String can't contians newLines", token.setPos(f, token_position));
-            }
-            str += current;
-            goForward;
-          }
-          
-          if(current == '"'){
-            token = new STRLIT(str);
-            token.setPos(f, token_position);
-            goForward;
-          }
-        }
-        //Comments or DIV
-        else if (current == '/') {
-          goForward;
-          println(current);
+          debug("Nästa är: " + current)
           if(current == '/') {
             // comment en rad
-            println(current);
+            debug("kommentar //")
+            debug("går till while-loop")
             while (!reachedEOF && current != '\n') {
-              goForward;
-              println(current);
+              goForward
+              printcurr(current)
               //next;
             }
-            goForward;
+            debug("slut på while")
+            return next
+            //goForward
+            //goForward
             //next;
             //println(current);
            
           }
           else if(current == '*') {
             // comment fram till */
+            debug("kommentar /*")
             var prev = current;
             goForward;
-            while (!reachedEOF && prev != '*' && current != '/') {
-              prev = current;
-              goForward;
+           try {
+              while (!reachedEOF && current != '*' && source.next != '/') {
+              }
             }
+            catch {
+              case nsee: NoSuchElementException => 
+                fatal("Block comment not closed", token.setPos(f, token_position))
+            }
+            
             //goForward;
-            next;
-              
+            return next
           }
           else {
             token = new Token(DIV)
             token.setPos(f, token_position)
           }
         }
+          
+        
+        //ID and Keyword
+        if (current.isLetter && !reachedEOF) {    //Start of ID or Keyword
+          debug("current var bokstav")
+          var str = "";          //Write as StringBuilder?
+          while(!reachedEOF && (current.isLetterOrDigit || current == '_')){
+            debug("bygger sträng med: " + current)
+            str += current
+            goForward
+          }
+          debug("sträng blev: " + str)
+          debug("checkar om ID eller Keyword")
+          var tkRes = match_ID_or_Keyword(str)
+          
+          if(tkRes == IDKIND ){
+            debug("token var ID")
+            token = new ID(str)
+            token.setPos(f, token_position)
+          }else{
+            debug("token var keyword")
+            token = new Token(tkRes)
+            token.setPos(f,token_position)
+          }
+        }
+        
+        //Int Literals
+        else if(current.isDigit){
+          debug("Current var siffra")
+          token = new INTLIT(0);
+          while(current == '0'){
+            debug("hoppa över nollor")
+            goForward;
+          }
+          if(current.isDigit) {
+            var counter = 0;
+            while(!reachedEOF && current.isDigit){
+              debug("bygger tal med: " + current)
+              counter += 10*counter + current.asDigit;
+              goForward;
+            }
+            debug("tal blev: " + counter)
+            token = new INTLIT(counter);
+            token.setPos(f, token_position);
+          }
+        }
+        //String Literal
+        else if(current == '"'){
+          debug("current var sträng")
+          goForward;
+          var str = "";
+          while(!reachedEOF && current != '"'){
+            if(current == '\n'){
+              fatal("String can't contains newLines", token.setPos(f, token_position));
+            }
+            debug("bygger sträng med: " + current)
+            str += current;
+            goForward;
+          }
+          debug("sträng blev: " + str)
+          
+          if(current == '"'){
+            debug("sträng är slut")
+            token = new STRLIT(str);
+            token.setPos(f, token_position);
+            goForward;
+          }
+        }
+      
+       
+        
         //Symbols
         else{
+          debug("current var övrig/symbol")
           var tkRes = match_Symbols(current);
           
           token = new Token(tkRes);

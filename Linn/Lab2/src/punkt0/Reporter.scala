@@ -3,6 +3,7 @@ package punkt0
 import java.io.File
 import scala.io.Source
 
+
 object Reporter {
 
   var errors = false
