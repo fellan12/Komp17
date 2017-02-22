@@ -35,10 +35,11 @@ object Lexer extends Phase[File, Iterator[Token]] {
     
 
     return new Iterator[Token] {
-       var current = source.ch;
+       var current = source.ch
        debug("start current:" + current)
-       var reachedEOF = false;
-       var EOFPrinted = false;
+       var reachedEOF = false
+       var EOFPrinted = false
+       var errorDetected = false
        goForward;
        printcurr(current)
        
@@ -59,6 +60,9 @@ object Lexer extends Phase[File, Iterator[Token]] {
        */
       def hasNext  = {
         debug("checks if next")
+        if(EOFPrinted && errorDetected){
+          terminateIfErrors()
+        }
         !EOFPrinted  //END OF FILE  
         
       }
@@ -121,7 +125,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
             }
             catch {
               case nsee: NoSuchElementException => 
-                fatal("Block comment not closed", token.setPos(f, token_position))
+                error("Block comment not closed", token.setPos(f, token_position))
             }
             
             //goForward;
@@ -130,6 +134,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
           else {
             token = new Token(DIV)
             token.setPos(f, token_position)
+            return token
           }
         }
           
@@ -185,7 +190,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
           var str = "";
           while(!reachedEOF && current != '"'){
             if(current == '\n'){
-              fatal("String can't contains newLines", token.setPos(f, token_position));
+              error("String can't contains newLines", token.setPos(f, token_position));
             }
             debug("bygger sträng med: " + current)
             str += current;
@@ -206,14 +211,19 @@ object Lexer extends Phase[File, Iterator[Token]] {
         //Symbols
         else{
           debug("current var övrig/symbol")
+          printcurr(current)
           var tkRes = match_Symbols(current);
-          
+          debug("" + hasNext)
           token = new Token(tkRes);
           token.setPos(f, token_position);
+          goForward;
           
         }
-        
-        return token;
+        if (token.toString == "BAD") {
+          errorDetected = true
+          error("Bad Token Detected", token.setPos(f, token_position))
+        }
+        return token
       }
       
       /*
