@@ -1,7 +1,6 @@
 package punkt0
 
 import java.io.File
-
 import lexer._
 
 
@@ -19,9 +18,19 @@ object Main {
         ctx = ctx.copy(outDir = Some(new File(out)))
         processOption(args)
 
+      case "--token" :: args =>
+        var lxr = Lexer
+        var it = lxr.run(new File(args.last))(ctx)
+        while ( it.hasNext ) {
+          var tok = it.next;
+          println(tok + "(" + tok.line + ":" + tok.column + ")");
+        }
+        //println(it.next());
+        
       case f :: args =>
         ctx = ctx.copy(file = Some(new File(f)))
         processOption(args)
+       
 
       case List() =>
     }
@@ -41,13 +50,15 @@ object Main {
     println("Options include:")
     println(" --help        displays this help")
     println(" -d <outdir>   generates class files in the specified directory")
+    println(" --token				prints list of tokens in file")
   }
 
   def main(args: Array[String]): Unit = {
-    val ctx = processOptions(args)
-    displayHelp();
+    var input = Array("--token", "/home/felix/Documents/Komp17/Linn/Lab2/testprograms/lab2/valid/positions.p0");
+    val ctx = processOptions(input)
 
     // TODO: run lexer phase
+    
   }
 
 }
