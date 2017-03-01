@@ -1,7 +1,6 @@
 package punkt0
 
 import java.io.File
-
 import lexer._
 
 
@@ -19,9 +18,21 @@ object Main {
         ctx = ctx.copy(outDir = Some(new File(out)))
         processOption(args)
 
-      case f :: args =>
-        ctx = ctx.copy(file = Some(new File(f)))
+      case "--token" :: args =>
+        ctx = ctx.copy(doTokens = true)
         processOption(args)
+        
+      case "--print" :: args =>
+        ctx = ctx.copy(doPrintMain = true)
+        processOption(args)
+
+      case "--ast" :: args =>
+        ctx = ctx.copy(doAST = true)
+        processOption(args)
+
+      case f :: args =>
+        ctx = ctx.copy(files = Some(new File(f)))
+        processOption(args)       
 
       case List() =>
     }
@@ -37,16 +48,26 @@ object Main {
   }
 
   def displayHelp(): Unit = {
-    println("Usage: <punkt0c> [options] <file>")
+    println("Usage: ./slacc [options] <file>")
     println("Options include:")
     println(" --help        displays this help")
+    println(" --tokens      displays the list of tokens")
+    println(" --print       pretty-prints the program")
+    println(" --ast         displays the AST")
     println(" -d <outdir>   generates class files in the specified directory")
   }
 
   def main(args: Array[String]): Unit = {
-    val ctx = processOptions(args)
+    var input = Array("--token", "/home/felix/Documents/Komp17/Felix/Lab2/testprograms/lab2/valid/positions.p0");
+    val ctx = processOptions(input)
 
-    // TODO: run lexer phase
+    if (ctx.doTokens) {
+      val iter = Lexer.run(ctx.files.head)(ctx)
+      while (iter.hasNext) {
+        val n = iter.next()
+        println(n+"("+n.line+":"+n.column+")")
+      }
+    }    
   }
 
 }

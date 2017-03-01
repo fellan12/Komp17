@@ -3,12 +3,12 @@ package punkt0
 import java.io.File
 
 case class Context(
-  file: Option[File] = None,
-  outDir: Option[File] = None,
-  doEval: Boolean = false,
-  doHelp: Boolean = false,
-  doPrintMain: Boolean = false,
-  doTokens: Boolean = false,
-  doAST: Boolean = false,
-  doSymbolIds: Boolean = false
+  val files: Option[File] = None,
+  val outDir: Option[File] = None,
+  val doEval: Boolean = false,
+  val doHelp: Boolean = false,
+  val doPrintMain: Boolean = false,
+  val doTokens: Boolean = false,
+  val doAST: Boolean = false,
+  val doSymbolIds: Boolean = false
 )
