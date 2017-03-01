@@ -54,7 +54,7 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    var input = Array("--token", "/home/felix/Documents/Komp17/Linn/Lab2/testprograms/lab2/valid/positions.p0");
+    var input = Array("--token", "/home/felix/Documents/Komp17/Felix/Lab2/testprograms/lab2/valid/positions.p0");
     val ctx = processOptions(input)
 
     // TODO: run lexer phase

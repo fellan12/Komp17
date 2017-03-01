@@ -43,7 +43,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
        goForward;
        printcurr(current)
        
-       def goForward : Unit = {
+       def goForward = {
          debug("går in i goforw")
          if (source.hasNext) {
            debug("char finns")
@@ -71,7 +71,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
        * Return next token
        */
       def next : Token = {
-       var token: Token = new Token(BAD)
+       var token = new Token(BAD)
        var token_position = source.pos
 
        				
@@ -87,6 +87,48 @@ object Lexer extends Phase[File, Iterator[Token]] {
 					goForward
 					return next
 				}
+				
+				
+				   //Removes comment if it exists, otherwise returns DIV token
+        if (current == '/') {
+          debug("current var /")
+          goForward;
+          debug("Nästa är: " + current)
+          if(current == '/') {
+            // comment en rad
+            debug("kommentar //")
+            debug("går till while-loop")
+            while (!reachedEOF && current != '\n') {
+              goForward
+              printcurr(current)
+            }
+            debug("slut på while")
+            return next
+           
+          }
+          else if(current == '*') {
+            // comment fram till */
+            debug("kommentar /*")
+            var prev = current;
+            goForward;
+           try {
+              while (!reachedEOF && current != '*' && source.next != '/') {
+              }
+            }
+            catch {
+              case nsee: NoSuchElementException => 
+                error("Block comment not closed", token.setPos(f, token_position))
+            }
+            
+            return next
+          }
+          else {
+            token = new Token(DIV)
+            token.setPos(f, token_position)
+            return token
+          }
+        }
+        
 
 
 				// ID or keyword
@@ -150,112 +192,89 @@ object Lexer extends Phase[File, Iterator[Token]] {
 
 				//Handle symbols
 				else {
-          var oneMoreStep = true
-					current match {
+          token = new Token(match_Symbols(current, token))
+				}
+				
+					token.setPos(f, token_position)
+					token
+				}
+      
+      def match_Symbols(current : Char, token: Token) : TokenKind = {
+        var oneMoreStep = true;
+        var tok : TokenKind = current match {
 
 						//Braces, parenthesis and brackets
-						case '(' => token = new Token(LPAREN)
-						case ')' => token = new Token(RPAREN)
-						case '{' => token = new Token(LBRACE)
-						case '}' => token = new Token(RBRACE)
+						case '(' => LPAREN
+						case ')' => RPAREN
+						case '{' => LBRACE
+						case '}' => RBRACE
 
 						//Arithmetic operators (except /)
-						case '+' => token = new Token(PLUS)
-						case '-' => token = new Token(MINUS)
-						case '*' => token = new Token(TIMES)
+						case '+' => PLUS
+						case '-' => MINUS
+						case '*' => TIMES
 
 						//Punctuation symbols
-						case '.' => token = new Token(DOT)
-						case ',' => token = new Token(COMMA)
-						case ';' => token = new Token(SEMICOLON)
-						case ':' => token = new Token(COLON)
-						case '!' => token = new Token(BANG)
-
-						//Single- and multiline comments or DIV operator
-						case '/' => {
-							goForward
-
-							// Single line comment
-							if (!reachedEOF && current == '/') {
-								// skip forward to the next line
-								while (!reachedEOF && current != '\n') { goForward }
-								return next
-							}
-
-							// Multiline block comment
-							else if (!reachedEOF && current == '*') {
-
-								try {
-									while (source.next != '*' || source.next != '/') {}
-
-									} catch {
-										case nsee: NoSuchElementException => fatal("Unclosed block comment.", token.setPos(f, source.pos))
-									}
-
-
-								goForward // move past the trailing '/'
-								return next
-							}
-							else {
-								oneMoreStep = false
-								token = new Token(DIV)
-							}
-						}
+						case '.' => DOT
+						case ',' => COMMA
+						case ';' => SEMICOLON
+						case ':' => COLON
+						case '!' => BANG
 
 						// < or EXTENDS
 						case '<' => {
 							goForward
-							if (!reachedEOF && current == ':') {
-								token = new Token(EXTENDS)
+							if (!reachedEOF && source.ch == ':') {
+								EXTENDS
 							}
 							else {
-								token = new Token(LESSTHAN)
 								oneMoreStep = false
+								LESSTHAN
 							}
 						}
 
 						// = and ==
 						case '=' => {
 							goForward
-							if (!reachedEOF && current == '=') {
-								token = new Token(EQUALS)
+							if (!reachedEOF && source.ch == '=') {
+								EQUALS
 							}
 							else {
-								token = new Token(EQSIGN)
 								oneMoreStep = false
+								EQSIGN
 							}
 						}
 
 						//Logical operators
 						case '|' => {
 							goForward
-							if (!reachedEOF && current == '|')
-								token = new Token(OR)
+							if (!reachedEOF && source.ch == '|')
+								OR
 							else
-								fatal("Illegal 'OR' operator syntax.", token.setPos(f, source.pos))
+								error("Illegal 'OR' operator syntax.", token.setPos(f, source.pos))
+								BAD
 						}
 						case '&' => {
 							goForward
-							if (!reachedEOF && current == '&')
-								token = new Token(AND)
+							if (!reachedEOF && source.ch == '&')
+								AND
 							else
-								fatal("Illegal 'AND' operator syntax.", token.setPos(f, source.pos))
+								error("Illegal 'AND' operator syntax.", token.setPos(f, source.pos))
+								BAD
 						}
 
 						//Unexpected symbols
 						case _ => {
-								fatal("Unrecognized symbol.", token.setPos(f, token_position))
+							error("Unrecognized symbol.", token.setPos(f, source.pos))
+							BAD
 							}
-						}
-
-						if (oneMoreStep) {
-						  goForward
-						}
-					}
-
-					token.setPos(f, token_position)
-					token
+						} 
+        
+        if (oneMoreStep) {
+					goForward
 				}
+        return tok
+      }
  
       /*
        * Return ID/Keyword TokenKind of tok     
@@ -286,3 +305,4 @@ object Lexer extends Phase[File, Iterator[Token]] {
     }
   }
 }
+
