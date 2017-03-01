@@ -45,7 +45,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     }
 
     /** Complains that what was found was not expected. The method accepts arbitrarily many arguments of type TokenKind */
-    def expected(kind: TokenKind, more: TokenKind*): Nothing = {
+    def expected(kind: TokenKind, more: TokenKind*) = {
       error("expected: " + (kind::more.toList).mkString(" or ") + ", found: " + currentToken, currentToken)
     }
 
@@ -86,6 +86,21 @@ object Parser extends Phase[Iterator[Token], Program] {
     
     /*
      * Parse Expression
+     * 
+		 * expr 		::= or ors
+		 * or				::= and ands
+		 * ors			::= E | || or ors
+		 * and			::= cmp cmps
+		 * ands     ::= E | && and ands
+		 * cmp			::= term terms
+		 * cmps			::= E | < cmp cmps | == cmp cmps
+		 * term 		::= factor factors
+		 * terms 		::= E | + term terms | [expr] terms
+		 * factor 	::= ! factor | unary unaries
+		 * factors 	::= E | * factor factors
+		 * unary		::= {terminals} | id followsId | new followsNew |  ...
+		 * unaries	::= E | . followsDot unaries
+		 *
      */
     def expression: ExprTree = ors(or)
     
@@ -182,8 +197,11 @@ object Parser extends Phase[Iterator[Token], Program] {
 		def typ: TypeTree = {
 		  var retTree: TypeTree = null
 			var pos = currentToken
-			eat(COLON)
-
+			eat(COLON)                // type declaration starts always with ":"
+			
+		  /*
+		   * Which kind of Type is it
+		   */
 			currentToken.kind match {
 				case BOOLEAN => eat(BOOLEAN); retTree = new BooleanType()
 				case STRING => eat(STRING); retTree = new StringType()
@@ -202,6 +220,9 @@ object Parser extends Phase[Iterator[Token], Program] {
 		  var id : Identifier = null
 
 			try {
+			  /*
+			   * Current token should be, so just unpack it
+			   */
 				id = new Identifier(currentToken.toString.unpack("ID").get)
 			}
 			catch {
