@@ -80,7 +80,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
 				}
 
 				// Skip whitespace
-				while (!reachedEOF && current.isWhitespace) {
+				if (!reachedEOF && current.isWhitespace) {
 					goForward
 					return next
 				}

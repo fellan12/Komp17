@@ -58,14 +58,14 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    var input = Array("--token", "/home/felix/Documents/Komp17/Felix/Lab2/testprograms/lab2/valid/positions.p0");
+    var input = Array("--token", "/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/99bottles.p0");
     val ctx = processOptions(input)
 
     if (ctx.doTokens) {
       val iter = Lexer.run(ctx.files.head)(ctx)
       while (iter.hasNext) {
-        val n = iter.next()
-        println(n+"("+n.line+":"+n.column+")")
+        val tok = iter.next()
+        println(tok+"("+tok.posString+")")
       }
     }    
   }
