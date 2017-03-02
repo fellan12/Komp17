@@ -267,25 +267,25 @@ object Lexer extends Phase[File, Iterator[Token]] {
        */
       def match_ID_or_Keyword(tok : String) : TokenKind = tok match {
         case  "object" => OBJECT       // 
-        case  "class" => CLASS        // class
-        case  "def" => DEF          // def
-        case  "override" => OVERRIDE     // override
-        case  "var" => VAR          // var
-        case  "Unit" => UNIT         // Unit
+        case  "class" => CLASS         // class
+        case  "def" => DEF             // def
+        case  "override" => OVERRIDE   // override
+        case  "var" => VAR             // var
+        case  "Unit" => UNIT           // Unit
         case  "String" => STRING       // String
-        case  "extends" => EXTENDS      // extends
-        case  "Int" => INT          // Int
-        case  "Boolean" => BOOLEAN      // Boolean
-        case  "while" => WHILE        // while
-        case  "if" => IF           // if
-        case  "else" => ELSE         // else
-        case  "true" => TRUE         // true
-        case  "false" => FALSE        // false
-        case  "this" => THIS         // this
-        case  "null" => NULL         // null
-        case  "new" => NEW          // new
-        case  "println" => PRINTLN      // println
-        case  _ => IDKIND;
+        case  "extends" => EXTENDS     // extends
+        case  "Int" => INT             // Int
+        case  "Boolean" => BOOLEAN     // Boolean
+        case  "while" => WHILE         // while
+        case  "if" => IF               // if
+        case  "else" => ELSE           // else
+        case  "true" => TRUE           // true
+        case  "false" => FALSE         // false
+        case  "this" => THIS           // this
+        case  "null" => NULL           // null
+        case  "new" => NEW             // new
+        case  "println" => PRINTLN     // println
+        case  _ => IDKIND;             // ID (Handle with care)
         
       }
     }
