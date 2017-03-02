@@ -217,19 +217,8 @@ object Lexer extends Phase[File, Iterator[Token]] {
 						case ';' => SEMICOLON
 						case ':' => COLON
 						case '!' => BANG
-
-						// < or EXTENDS
-						case '<' => {
-							goForward
-							if (!reachedEOF && source.ch == ':') {
-								EXTENDS
-							}
-							else {
-								oneMoreStep = false
-								LESSTHAN
-							}
-						}
-
+						case '<' => LESSTHAN
+						
 						// = and ==
 						case '=' => {
 							goForward
