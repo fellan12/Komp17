@@ -65,7 +65,7 @@ object Main {
       val iter = Lexer.run(ctx.files.head)(ctx)
       while (iter.hasNext) {
         val tok = iter.next()
-        println(tok+"("+tok.posString+")")
+        println(tok+"("+tok.line + ":" + tok.column +")")
       }
     }    
   }

@@ -51,19 +51,33 @@ object Parser extends Phase[Iterator[Token], Program] {
 
     /*****************************************************************************************************************
      *****************************************************************************************************************
-     * Declarations
+     * Declarations - Program, Class, 
      *****************************************************************************************************************
      *****************************************************************************************************************/
     
     /*
-     * Parse program Declaration
+     * Parse Program
      */
-    def programDecl: Program = {
-      ??? //TODO
+    def program: Program = {
+    	var pos = currentToken
+		  
+    	//CLASSES
+    	var classes = new ListBuffer[ClassDecl]()
+    	while (currentToken.kind == CLASS){
+    	  //Get all classes from program
+    	  classes += classDecl
+    	}
+			
+    	//MAIN METHOD
+    	var mainMethod = mainDecl
+			
+    	eat(EOF)
+    	
+			return new Program(mainMethod, classes.toList)
     }
     
     /*
-     * Parse class Declaration
+     * Parse Class Declaration
      */
     def classDecl : ClassDecl = {
       var pos = currentToken
@@ -105,26 +119,29 @@ object Parser extends Phase[Iterator[Token], Program] {
     }
     
     /*
-     * Parse Var Declaration
+     * Parse Main declaration
      */
-    def varDecl : VarDecl = {
-      var pos = currentToken
-			eat(VAR)
-      
+    def mainDecl : MainMethod = {
+      var pos = currentToken  
+      eat(OBJECT)
       //ID
-      //Get ID of variable
-			var id = identifier
+      var mainID = identifier
+            
+      //ID OF PARENT
+      eat(EXTENDS)
+      var parentID = identifier
+      
+      eat(LBRACE)
+      
+      //MAIN METHOD BODY
+      var method = methodDecl
 			
-			//Type
-			//Get Type of var
-			var tpe = typ
-			
-			eat(SEMICOLON)
-			
-      var retTree = new VarDecl(tpe,id, expression)
-			retTree.setPos(currentToken)
-			retTree   
-		}
+			eat(RBRACE)
+      
+      var retTree = new MainMethod(mainID, parentID, method)
+      retTree.setPos(pos)
+      retTree      
+    }
     
     /*
      * Parse Method Declaration
@@ -194,137 +211,41 @@ object Parser extends Phase[Iterator[Token], Program] {
 			
 			//Rest of the expressions
 			val regularExpr = exprList.dropRight(1)  
-
 			
       var retTree = new MethodDecl(overRide,returnType, id, argsList.toList, varList.toList, regularExpr.toList, retExpr)
       retTree.setPos(pos)
       retTree
     }
     
-    /**************************************************************************************************************
-     **************************************************************************************************************
-     * Expressions
-     **************************************************************************************************************
-     **************************************************************************************************************/
-    
     /*
-     * Parse Expression
-     * 
-		 * expr 		::= or ors
-		 * or				::= and ands
-		 * ors			::= E | || or ors
-		 * and			::= cmp cmps
-		 * ands     ::= E | && and ands
-		 * cmp			::= term terms
-		 * cmps			::= E | < cmp cmps | == cmp cmps
-		 * term 		::= factor factors
-		 * terms 		::= E | + term terms | [expr] terms
-		 * factor 	::= ! factor | unary unaries
-		 * factors 	::= E | * factor factors
-		 * unary		::= {terminals} | id followsId | new followsNew |  ...
-		 * unaries	::= E | . followsDot unaries
-		 *
+     * Parse Variable Declaration
      */
-    def expression: ExprTree = ors(or)
-    
-    /*
-		 * Parse Ors
-		 */
-		def ors(t: ExprTree): ExprTree = currentToken.kind match {
-			case OR => eat(OR); ors(Or(t, or))
-			case _ => t
+    def varDecl : VarDecl = {
+      var pos = currentToken
+			eat(VAR)
+      
+      //ID
+      //Get ID of variable
+			var id = identifier
+			
+			//Type
+			//Get Type of var
+			var tpe = typ
+			
+			eat(EQSIGN)
+      
+      //EXPRESSION
+      //Get expression of the variable
+      var expr = expression
+			
+			eat(SEMICOLON)
+			
+      var retTree = new VarDecl(tpe,id, expr)
+			retTree.setPos(currentToken)
+			retTree   
 		}
     
     /*
-		 * Parse Or
-		 * or				::= and ands
-		 */
-		def or: ExprTree = ands(and)
-		
-		 /*
-     * Parse Ands
-     */
-		def ands(t: ExprTree): ExprTree = currentToken.kind match {
-			case AND => eat(AND); ands(And(t, and))
-			case _ => t
-		}
-		
-		/*
-		 * Parse And
-		 * and			::= cmp cmps
-		 */
-		def and: ExprTree = cmps(cmp)
-		
-		/*
-		 * Parse Comperators
-		 */
-		def cmps(t: ExprTree): ExprTree = currentToken.kind match {
-      case LESSTHAN => eat(LESSTHAN); cmps(LessThan(t, cmp))
-			case EQUALS => eat(EQUALS); cmps(Equals(t, cmp))
-			case _ => t		
-		}
-		
-		/*
-     * Parse Compare
-		 * cmp			::= term terms
-     */
-		def cmp: ExprTree = terms(term)
-		
-		/*
-		 * Parse Terms
-		 */
-		def terms(t: ExprTree): ExprTree = {
-		  ??? //TODO
-		}
-		
-     /*
-     * Parse Terms
-		 * term 		::= factor factors
-     */
-    def term: ExprTree = factors(factor)
-    
-    /*
-		 * Parse Factors
-		 */
-		def factors(t: ExprTree): ExprTree = {
-		  ??? //TODO
-		}
-    
-    /*
-     * Parse Factor
-     */
-    def factor: ExprTree = currentToken.kind match {
-			case BANG => {
-				var startToken = currentToken
-				eat(BANG)
-				var newFactor = factor
-				new Not(newFactor).setPos(startToken)
-			}
-			case _ => unaries(unary)
-		}
-    
-    /*
-		 * Parse Unaries
-		 */
-		def unaries(t: ExprTree): ExprTree = {
-		  ??? //TODO
-		}
-		
-		/*
-		 * Parse Unary
-		 */
-		def unary: ExprTree = {
-		  ??? //TODO
-		  //TODO
-		}
-		
-		/*****************************************************************************************************************
-		 *****************************************************************************************************************
-		 * TYPE and IDENTIFIERS
-		 *****************************************************************************************************************
-		 *****************************************************************************************************************/
-		
-		/*
 		 * Parse Type
 		 */
 		def typ: TypeTree = {
@@ -345,7 +266,14 @@ object Parser extends Phase[Iterator[Token], Program] {
 			retTree.setPos(currentToken)
 			retTree
 		}
-
+    
+		/*
+		 * Parse Expression
+		 */
+    def expression: ExprTree = {
+      ??? //TODO
+    }
+    	
 		/*
 		 * Parse Identifier
 		 */
@@ -368,7 +296,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 		}
 
     readToken
-    val tree = programDecl
+    val tree = program
     terminateIfErrors
     tree
   }
