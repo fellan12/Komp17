@@ -164,7 +164,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
         }
         
         //Int Literals
-        else if(current.isDigit){
+        else if(current.isDigit) {
           debug("Current var siffra")
           token = new INTLIT(0);
           while(current == '0'){

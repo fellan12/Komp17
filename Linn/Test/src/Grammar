@@ -1,0 +1,34 @@
+Program ::= ( ClassDeclaration )* MainDeclaration
+
+ClassDeclaration ::= class Identifier (extends Identifier)? {(VarDeclaration)* Expression (; Expression)*}
+
+MainDeclaration	::=	object Identifier extends Identifier { ( VarDeclaration )* Expression ( ; Expression)* }
+
+MethodDeclaration	::=	( override )? def Identifier ( ( Identifier : Type ( , Identifier : Type ) * )? ) : Type = { ( VarDeclaration )* Expression ( ; Expression)* }
+
+VarDeclaration	::=	var Identifier : Type = Expression ;
+
+Type	::=	Boolean | Int | String | Unit | Identifier
+
+Expression	::=	Expression ( && | || | == | < | + | - | * | / ) Expression 
+			| Expression . Identifier ( ( Expression ( , Expression )* )? ) 
+			| <INTEGER_LITERAL> 
+			| " <STRING_LITERAL> " 
+			| true 
+			| false 
+			| IdentOrAssign
+			| this 
+			| null 
+			| new Identifier ( ) 
+			| ! Expression 
+			| ( Expression ) 
+			| { ( Expression ( ; Expression )* )? } 
+			| if ( Expression ) Expression ( else Expression )? 
+			| while ( Expression ) Expression 
+			| println ( Expression ) 
+			
+IdentOrAssign ::= Identifier | Identifier = Expression
+
+
+
+Identifier	::=	<IDENTIFIER>
