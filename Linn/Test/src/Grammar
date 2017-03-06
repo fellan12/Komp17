@@ -1,6 +1,6 @@
 Program ::= ( ClassDeclaration )* MainDeclaration
 
-ClassDeclaration ::= class Identifier (extends Identifier)? {(VarDeclaration)* Expression (; Expression)*}
+ClassDeclaration ::= class Identifier ( extends Identifier )? { ( VarDeclaration )* ( MethodDeclaration )* }
 
 MainDeclaration	::=	object Identifier extends Identifier { ( VarDeclaration )* Expression ( ; Expression)* }
 

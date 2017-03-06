@@ -22,7 +22,8 @@ object Parser extends Phase[Iterator[Token], Program] {
     import Reporter._
     /** Store the current token, as read from the lexer. */
     var currentToken: Token = new Token(BAD)
-
+    var bugging = false;
+    
     def readToken: Unit = {
       if (tokens.hasNext) {
         // uses nextToken from the Lexer trait
@@ -158,7 +159,7 @@ object Parser extends Phase[Iterator[Token], Program] {
       *
       */
     	
-    	var method = new MethodDecl(false, UnitType(),mainID, List(), List(), List(), exprList.head)
+    	var method = new MethodDecl(false, UnitType(),mainID, List(), varList.toList, List(), exprList.head)
       var retTree = new MainMethod(mainID, parentID, method)
       
     	eat(RBRACE)
@@ -295,22 +296,28 @@ object Parser extends Phase[Iterator[Token], Program] {
 	 * Parse Expression
 	 */
     def expression: ExprTree = {
+      debug("Enter Expression")
       var retTree : ExprTree = null
-      
+      var Pattern = "([DIV|TIMES|PLUS|MINUS|EQUALS|AND|OR|LESSTHAN])".r
       currentToken.kind match {
+        case Pattern(c) => {
+                debug("Enter Pattern")
+
+          retTree = compList(comp)
+          retTree.setPos(currentToken)
+        }
         case PRINTLN => {
+                debug("Enter PRINTLN")
           eat(PRINTLN)
           eat(LPAREN)
           retTree = new Println(expression)
-          println(retTree)
-          println(currentToken.kind)
           eat(RPAREN)
-          println(currentToken.kind)
           retTree.setPos(currentToken)
-          println("here")
          
         }
         case INTLITKIND => {
+                debug("Enter INTLITKIND")
+
           retTree = new IntLit(currentToken.toString.unpack("INTLITKIND").get.toInt)
           retTree.setPos(currentToken)
           eat(INTLITKIND)
@@ -410,10 +417,7 @@ object Parser extends Phase[Iterator[Token], Program] {
           retTree = identOrAssign
           retTree.setPos(currentToken)
         }
-        case _ => {
-          retTree = compList(comp)
-          retTree.setPos(currentToken)
-        }
+        
       }
   
       retTree
@@ -509,6 +513,12 @@ object Parser extends Phase[Iterator[Token], Program] {
 	    new Assign(id,expression)
 	  }else{
 	    id
+	  }
+	}
+	
+	def debug(str : String) = {
+	  if(bugging){
+	    println(str)
 	  }
 	}
 

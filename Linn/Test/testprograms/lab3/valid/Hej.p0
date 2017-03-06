@@ -1,3 +1,5 @@
 object HelloWorld extends App {
-  println(3+3)
+	var ett : String = "hej";
+	var two : Int = 2;
+  println("hej")
 }
