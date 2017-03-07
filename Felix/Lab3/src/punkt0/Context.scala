@@ -10,5 +10,6 @@ case class Context(
   val doPrint: Boolean = false,
   val doTokens: Boolean = false,
   val doAST: Boolean = false,
-  val doSymbolIds: Boolean = false
+  val doSymbolIds: Boolean = false,
+  val doTest: Boolean = false
 )
