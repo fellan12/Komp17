@@ -2,7 +2,7 @@ package punkt0
 
 import java.io.File
 import lexer._
-
+import ast._
 
 object Main {
 
@@ -23,7 +23,7 @@ object Main {
         processOption(args)
         
       case "--print" :: args =>
-        ctx = ctx.copy(doPrintMain = true)
+        ctx = ctx.copy(doPrint = true)
         processOption(args)
 
       case "--ast" :: args =>
@@ -58,16 +58,23 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    var input = Array("--token", "/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/99bottles.p0");
+    var input = Array("--print", "/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/Hej.p0");
     val ctx = processOptions(input)
-
     if (ctx.doTokens) {
       val iter = Lexer.run(ctx.files.head)(ctx)
       while (iter.hasNext) {
         val tok = iter.next()
         println(tok+"("+tok.line + ":" + tok.column +")")
       }
-    }    
+    }  else if (ctx.doAST){
+      val iter = Lexer.run(ctx.files.head)(ctx)
+      val parser = Parser.run(iter)(ctx)
+      println(parser)
+    } else if (ctx.doPrint){
+      val iter = Lexer.run(ctx.files.head)(ctx)
+      val parser = Parser.run(iter)(ctx)
+      println(Printer.apply(parser))
+    }
   }
 
 }

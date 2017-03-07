@@ -53,15 +53,15 @@ case object PRINTLN extends TokenKind     // println
 
 // identifiers
 class ID(val value: String) extends Token(IDKIND) {
-  override def toString: String = "ID(" + value + ")"
+  override def toString: String = "IDKIND(" + value + ")"
 }
 
 // integer literals
 class INTLIT(val value: Int) extends Token(INTLITKIND) {
-  override def toString: String = "INT(" + value + ")"
+  override def toString: String = "INTLITKIND(" + value + ")"
 }
 
 // string literals
 class STRLIT(val value: String) extends Token(STRLITKIND) {
-  override def toString: String = "STR(" + value + ")"
+  override def toString: String = "STRLITKIND(" + value + ")"
 }

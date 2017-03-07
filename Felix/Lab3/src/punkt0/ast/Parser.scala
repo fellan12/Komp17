@@ -22,7 +22,8 @@ object Parser extends Phase[Iterator[Token], Program] {
     import Reporter._
     /** Store the current token, as read from the lexer. */
     var currentToken: Token = new Token(BAD)
-
+    var bugging = false;
+    
     def readToken: Unit = {
       if (tokens.hasNext) {
         // uses nextToken from the Lexer trait
@@ -133,14 +134,36 @@ object Parser extends Phase[Iterator[Token], Program] {
       
       eat(LBRACE)
       
-
+       //Variables in method
+    	var varList = new ListBuffer[VarDecl]
+    	while (currentToken.kind == VAR){
+    	  //Get all variables in class
+    	  varList += varDecl          
+    	}
+    
+    	//Expressions in method
+    	var exprList = new ListBuffer[ExprTree]
+    	//Always parse for one expression
+    	exprList += expression
+    	while(currentToken.kind == SEMICOLON){
+    	  eat(SEMICOLON)
+    	  exprList += expression
+    	}
+      
+      /*
       // vardecl ??? followed by expression ??
       //MAIN METHOD BODY
       var method = methodDecl
 			
-			eat(RBRACE)
       
+      *
+      */
+    	
+    	var method = new MethodDecl(false, UnitType(),mainID, List(), varList.toList, List(), exprList.head)
       var retTree = new MainMethod(mainID, parentID, method)
+      
+    	eat(RBRACE)
+
       retTree.setPos(pos)
       retTree      
     }
@@ -273,7 +296,194 @@ object Parser extends Phase[Iterator[Token], Program] {
 	 * Parse Expression
 	 */
     def expression: ExprTree = {
-      ??? //TODO
+      debug("Enter Expression")
+      var retTree : ExprTree = null
+      var Pattern = "([DIV|TIMES|PLUS|MINUS|EQUALS|AND|OR|LESSTHAN])".r
+      currentToken.kind match {
+        case Pattern(c) => {
+                debug("Enter Pattern")
+
+          retTree = compList(comp)
+          retTree.setPos(currentToken)
+        }
+        case PRINTLN => {
+                debug("Enter PRINTLN")
+          eat(PRINTLN)
+          eat(LPAREN)
+          retTree = new Println(expression)
+          eat(RPAREN)
+          retTree.setPos(currentToken)
+         
+        }
+        case INTLITKIND => {
+                debug("Enter INTLITKIND")
+
+          retTree = new IntLit(currentToken.toString.unpack("INTLITKIND").get.toInt)
+          retTree.setPos(currentToken)
+          eat(INTLITKIND)
+        }
+        case STRLITKIND => {
+          retTree = new StringLit(currentToken.toString.unpack("STRLITKIND").get)
+          retTree.setPos(currentToken)
+          eat(STRLITKIND)
+        
+        }
+        case TRUE => {
+          eat(TRUE)
+          retTree = new True()
+          retTree.setPos(currentToken)
+      
+        }
+        case FALSE => {
+          eat(FALSE)
+          new False()
+          retTree.setPos(currentToken)
+        }
+        case THIS => {
+          eat(THIS)
+          retTree = new This()
+          retTree.setPos(currentToken)
+        }
+        case NULL => {
+          eat(NULL)
+          retTree = new Null()
+          retTree.setPos(currentToken)
+          
+        }
+        case NEW => {
+          eat(NEW)
+          var id = identifier
+          eat(LPAREN)
+          eat(RPAREN)
+          retTree = new New(id)
+          retTree.setPos(currentToken)
+        
+        }
+        case BANG => {
+          eat(BANG)
+          retTree = new Not(expression)
+          retTree.setPos(currentToken)
+       
+        }
+        case LPAREN => {
+          eat(LPAREN)
+          retTree = expression
+          eat(RPAREN)
+          retTree.setPos(currentToken)
+   
+        }
+        case LBRACE => {
+          eat(LBRACE)
+          //Expressions in method
+          var exprList = new ListBuffer[ExprTree]
+          if (currentToken.kind != RBRACE) {
+            
+		         //Always parse for one expression
+		        exprList += expression
+		        while(currentToken.kind == SEMICOLON){
+		          eat(SEMICOLON)
+		          exprList += expression
+		        }
+          }
+          eat(RBRACE)
+          retTree = new Block(exprList.toList)
+          retTree.setPos(currentToken)
+        }
+        case IF => {
+          eat(IF)
+          eat(LPAREN)
+          var ifRet = expression
+          eat(RPAREN)
+          var thenRet = expression
+          if(currentToken.kind == ELSE) {
+            eat(ELSE)
+            var elseRet : Option[ExprTree] = Some(expression)
+            retTree = new If(ifRet, thenRet, elseRet)
+          }else {
+            retTree = new If(ifRet, thenRet, None)
+          }
+          retTree.setPos(currentToken)
+        }
+        case WHILE => {
+          eat(WHILE)
+          eat(LPAREN)
+          var condRet = expression
+          eat(RPAREN)
+          var bodyRet = expression
+          retTree = new While(condRet,bodyRet)
+          retTree.setPos(currentToken)
+        }
+        case IDKIND => {
+          retTree = identOrAssign
+          retTree.setPos(currentToken)
+        }
+        
+      }
+  
+      retTree
+    }
+    
+     def comp : ExprTree = {
+      termList(term)
+    }
+    
+    def compList(rightComp : ExprTree): ExprTree = {
+      currentToken.kind match {
+        case LESSTHAN => {
+          eat(LESSTHAN)
+          compList(new LessThan(rightComp,term))
+        }
+        case EQUALS => {
+          eat(EQUALS)
+          compList(new Equals(rightComp, term))
+        }
+        case OR => {
+          eat(OR)
+          compList(new Or(rightComp, term))
+        }
+        case AND => {
+          eat(AND)
+          compList(new And(rightComp, term))
+        }
+      }
+    }
+    
+    def term : ExprTree = {
+      factorList(factor)
+    }
+    
+    def termList(rightTerm : ExprTree) : ExprTree = {
+      currentToken.kind match {
+        case PLUS => {
+          eat(PLUS)
+          termList(new Plus(rightTerm, term))
+        }
+        case MINUS => {
+          eat(MINUS)
+          termList(new Minus(rightTerm, term))
+        }
+      }
+    }
+    
+    def factor : ExprTree = {
+      if(currentToken.kind == IDKIND){
+        identifier  
+      }else{
+        expression
+      }
+    }
+    
+    def factorList(leftFac : ExprTree) : ExprTree = {
+      currentToken.kind match {
+        case TIMES => {
+          eat(TIMES)
+          factorList(new Times(leftFac,factor))
+        }
+        case DIV => {
+          eat(DIV)
+          factorList(new Div(leftFac, factor))
+        }
+      }
     }
     	
 		/*
@@ -286,7 +496,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 		  /*
 		   * Current token should be, so just unpack it
 		   */
-			id = new Identifier(currentToken.toString.unpack("ID").get)
+			id = new Identifier(currentToken.toString.unpack("IDKIND").get)
 		}
 		catch {
 			case nsee: NoSuchElementException => error("Unable to extract identifier", currentToken)
@@ -295,6 +505,21 @@ object Parser extends Phase[Iterator[Token], Program] {
 		id.setPos(currentToken)
 		eat(IDKIND)
 		return id
+	}
+	
+	def identOrAssign: ExprTree = {
+	  var id = new Identifier(currentToken.toString.unpack("IDKIND").get)
+	  if(currentToken.kind == EQSIGN){
+	    new Assign(id,expression)
+	  }else{
+	    id
+	  }
+	}
+	
+	def debug(str : String) = {
+	  if(bugging){
+	    println(str)
+	  }
 	}
 
     readToken
