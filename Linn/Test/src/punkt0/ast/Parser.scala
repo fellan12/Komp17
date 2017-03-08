@@ -22,7 +22,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     import Reporter._
     /** Store the current token, as read from the lexer. */
     var currentToken: Token = new Token(BAD)
-    var bugging = true;
+    var bugging = false;
     
     def readToken: Unit = {
       if (tokens.hasNext) {
@@ -324,7 +324,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     def expression: ExprTree = {
       debug("Enter Expression")
       var retTree : ExprTree = complogic
-      debug("still" + currentToken)
+      //debug("still" + currentToken)
       retTree.setPos(currentToken)
       retTree
     }
@@ -334,7 +334,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     def complogic : ExprTree = {
       debug("enter complogic")
       var retTree : ExprTree = compequal
-      println(currentToken)
+      //println(currentToken)
       while (currentToken.kind == OR || currentToken.kind == AND) {
         debug("found and or or")
         var sign : TokenKind = currentToken.kind
@@ -468,7 +468,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     
     def factor : ExprTree = {
       debug("enter factor")
-      println("token is " + currentToken)
+      //println("token is " + currentToken)
       var retTree : ExprTree = null
       currentToken.kind match {
         
@@ -503,7 +503,7 @@ object Parser extends Phase[Iterator[Token], Program] {
         case FALSE => {
           debug("enter false")
           eat(FALSE)
-           println("hej" + currentToken)
+           //println("hej" + currentToken)
           retTree = new False()
           retTree.setPos(currentToken)
          
@@ -543,6 +543,7 @@ object Parser extends Phase[Iterator[Token], Program] {
    
         }
         case LBRACE => {
+          debug("enter lbrace")
           eat(LBRACE)
           //Expressions in method
           var exprList = new ListBuffer[ExprTree]
@@ -551,6 +552,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 		         //Always parse for one expression
 		        exprList += expression
 		        while(currentToken.kind == SEMICOLON){
+		          debug("found semikolon")
 		          eat(SEMICOLON)
 		          exprList += expression
 		        }
@@ -585,10 +587,10 @@ object Parser extends Phase[Iterator[Token], Program] {
           var condRet = expression
           debug("condexpr done")
           eat(RPAREN)
-          eat(LBRACE)
+          
           
           var bodyRet = expression
-          eat(RBRACE)
+         
           
           retTree = new While(condRet,bodyRet)
           retTree.setPos(currentToken)

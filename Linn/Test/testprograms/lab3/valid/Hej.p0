@@ -1,25 +1,68 @@
-class MyClass {
-	def firstDay(month : Int, year : Int) : Int = {
-       
-      
-        var result : Int = 0;
-        var i : Int = 0;
+// Borrowed from Pi.slac
+class Frac {
+    var numerator : Int = 0;
+    var sign : Boolean = false; // true means positive.
 
-        result = this.firstJan(year);
-        i = 1;
-        if ( true ) {
-        	
-        };
-        while (i && true) {
-            result = result + this.daysInMonth(i, year);
-            i = i + 1
-        }
-        
+    def init(n : Int, d : Int) : Frac = {
+        util = new Util();
+
+        numerator = util.abs(n);
+        denominator = util.abs(d);
+        sign = (n < 0 && d < 0 || (0 < n || n == 0) && (0 < d || d == 0)); 
+        this.simplify()
     }
-        
-   
+
+    def simplify() : Frac = {
+        var gcd_ : Int = 0;
+
+        if(!(numerator == 0) && !(denominator == 0)) {
+            gcd_ = util.gcd(numerator, denominator);
+
+            if(!(gcd_ == 1)) {
+                numerator = numerator / gcd_;
+                denominator = denominator / gcd_
+            }
+        };
+
+        this
+    }
+
+    def plus(other : Frac) : Frac = {
+        var lcm : Int = 0;
+        var lfac : Int = 0;
+        var rfac : Int = 0;
+
+        lcm = util.lcm(denominator, other.getDenominator());
+        lfac = lcm / denominator;
+
+        if(!sign) {
+            lfac = 0 - lfac
+        };
+
+        rfac = lcm / other.getDenominator();
+
+        if(!other.isPos()) {
+            rfac = 0 - rfac
+        };
+
+        (new Frac()).init((lfac * numerator) + (rfac * other.getNumerator()), lcm)
+    }
+
+
+    def str() : String = {
+        var result : String = null;
+        if(sign) {
+            result = ""
+        } else {
+            result = "-"
+        };
+        result + numerator + "/" + denominator
+    }
 }
 
-object HelloWorld extends App {
-	println(3+3)
+object Main extends App {
+  if (new DrunkPirate().sing())
+   println("Done!")
+ 
 }
+

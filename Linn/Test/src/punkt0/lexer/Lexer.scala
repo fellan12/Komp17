@@ -104,14 +104,14 @@ object Lexer extends Phase[File, Iterator[Token]] {
             return next
            
           }
+          //MultiBlock Comment
           else if(current == '*') {
             // comment fram till */
             debug("kommentar /*")
             var prev = current;
             goForward;
            try {
-              while (!reachedEOF && current != '*' && source.next != '/') {
-              }
+              while (source.next != '*' || source.next != '/') {}
             }
             catch {
               case nsee: NoSuchElementException => 

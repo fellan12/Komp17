@@ -8,6 +8,7 @@ object Trees {
     val id = Identifier("Main")
     def exprs: List[ExprTree] = main.exprs ::: (main.retExpr :: Nil)
   }
+  case class MainDecl(obj: Identifier, parent: Identifier, vars: List[VarDecl], exprs: List[ExprTree]) extends Tree
   case class ClassDecl(id: Identifier, parent: Option[Identifier], vars: List[VarDecl], methods: List[MethodDecl]) extends Tree
   case class VarDecl(tpe: TypeTree, id: Identifier, expr: ExprTree) extends Tree
   case class MethodDecl(overrides: Boolean, retType: TypeTree, id: Identifier, args: List[Formal], vars: List[VarDecl], exprs: List[ExprTree], retExpr: ExprTree) extends Tree {
