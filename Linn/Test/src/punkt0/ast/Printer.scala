@@ -29,7 +29,7 @@ object Printer {
       currentword match {
         case "Program" => 
         case "MainMethod" => {
-          mainmethod
+          //mainmethod
         }
         
       }
@@ -72,6 +72,6 @@ object Printer {
     
     //eat literal
     var value = digest  //Variable value
-    return "var " + id + " : " + typ + " = " + value;
-  }
+    return ""
+      }
 }

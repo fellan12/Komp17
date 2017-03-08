@@ -1,5 +1,25 @@
+class MyClass {
+	def firstDay(month : Int, year : Int) : Int = {
+       
+      
+        var result : Int = 0;
+        var i : Int = 0;
+
+        result = this.firstJan(year);
+        i = 1;
+        if ( true ) {
+        	
+        };
+        while (i && true) {
+            result = result + this.daysInMonth(i, year);
+            i = i + 1
+        }
+        
+    }
+        
+   
+}
+
 object HelloWorld extends App {
-	var ett : String = "hej";
-	var two : Int = 2;
-  println("hej")
+	println(3+3)
 }

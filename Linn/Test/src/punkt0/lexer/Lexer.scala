@@ -45,7 +45,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
          if (source.hasNext) {
            debug("char finns")
 			    current = source.next
-			     debug("Current är nu: " + current)
+			     debug("Current är nu:" + current)
   		   } else {
   		      debug("reachedEOF")
   			    reachedEOF = true
@@ -68,6 +68,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
        * Return next token
        */
       def next : Token = {
+        debug("hej")
        var token = new Token(BAD)
        var token_position = source.pos
 
@@ -148,7 +149,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
           }else{
             debug("token var keyword")
             token = new Token(tkRes)
-            token.setPos(f,token_position)
+            token.setPos(f, token_position)
           }
 				}
 				// Int literal
@@ -233,20 +234,29 @@ object Lexer extends Phase[File, Iterator[Token]] {
 
 						//Logical operators
 						case '|' => {
+						  debug("hittade ortecken")
 							goForward
-							if (!reachedEOF && source.ch == '|')
-								OR
-							else
-								error("Illegal 'OR' operator syntax.", token.setPos(f, source.pos))
-								BAD
+							//println("curr: " + source.ch)
+						  if (!reachedEOF && source.ch == '|') {
+						    debug("test")
+						    OR
+						  }
+						  else {
+						    error("Illegal 'OR' operator syntax.", token.setPos(f, source.pos))
+						    BAD
+						  }
+						  
+						  
 						}
 						case '&' => {
 							goForward
-							if (!reachedEOF && source.ch == '&')
+							if (!reachedEOF && source.ch == '&') {
 								AND
-							else
+							}
+							else {
 								error("Illegal 'AND' operator syntax.", token.setPos(f, source.pos))
 								BAD
+							}
 						}
 
 						//Unexpected symbols
