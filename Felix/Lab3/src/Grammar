@@ -1,6 +1,6 @@
 Program ::= ( ClassDeclaration )* MainDeclaration
 
-ClassDeclaration ::= class Identifier (extends Identifier)? {(VarDeclaration)* Expression (; Expression)*}
+ClassDeclaration ::= class Identifier ( extends Identifier )? { ( VarDeclaration )* ( MethodDeclaration )* }
 
 MainDeclaration	::=	object Identifier extends Identifier { ( VarDeclaration )* Expression ( ; Expression)* }
 
@@ -16,7 +16,7 @@ Expression	::=	Expression ( && | || | == | < | + | - | * | / ) Expression
 			| " <STRING_LITERAL> " 
 			| true 
 			| false 
-			| Identifier 
+			| IdentOrAssign
 			| this 
 			| null 
 			| new Identifier ( ) 
@@ -26,6 +26,9 @@ Expression	::=	Expression ( && | || | == | < | + | - | * | / ) Expression
 			| if ( Expression ) Expression ( else Expression )? 
 			| while ( Expression ) Expression 
 			| println ( Expression ) 
-			| Identifier = Expression
+			
+IdentOrAssign ::= Identifier | Identifier = Expression
+
+
 
 Identifier	::=	<IDENTIFIER>

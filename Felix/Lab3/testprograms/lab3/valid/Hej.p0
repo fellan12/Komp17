@@ -1,5 +1,8 @@
-object HelloWorld {
-  def main(args: Array[String]): Unit = {
-    println("Hello, world!")
-  }
+
+object HelloWorld extends App {
+	var ett : String = "hej";
+	var two : Int = 2;
+  	while(true){
+  		println("hej")
+  	}
 }
