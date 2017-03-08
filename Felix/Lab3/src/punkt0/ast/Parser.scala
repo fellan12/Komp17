@@ -52,7 +52,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 
     /*****************************************************************************************************************
      *****************************************************************************************************************
-     * Declarations - Program, Class, 
+     * Declarations - Program, Class, Main, Method, Var, Type
      *****************************************************************************************************************
      *****************************************************************************************************************/
     
@@ -212,7 +212,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 	
 			  eat(COLON)
 			  //Type of argument
-			  var tpe = typ
+			  var tpe = typeDecl
 			
 			  //Add to list of Arguments
 			  argsList += new Formal(tpe, id)
@@ -225,7 +225,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 		eat(COLON)
 
 		//Return type
-		var returnType = typ
+		var returnType = typeDecl
 
 		eat(EQSIGN)
 
@@ -279,7 +279,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 			eat(COLON)
 			//Type
 			//Get Type of var
-			var tpe = typ
+			var tpe = typeDecl
 			
 			eat(EQSIGN)
       
@@ -297,7 +297,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     /*
 	 * Parse Type
 	 */
-	def typ: TypeTree = {
+	def typeDecl: TypeTree = {
 	  debug("enter type")
 	  var retTree: TypeTree = null
 		var pos = currentToken
@@ -335,12 +335,18 @@ object Parser extends Phase[Iterator[Token], Program] {
       debug("enter COMPLOGIC")
       var retTree : ExprTree = compequal
       //println(currentToken)
-      while (currentToken.kind == OR || currentToken.kind == AND) {
+      while (currentToken.kind == BANG || currentToken.kind == OR || currentToken.kind == AND) {
         var sign : TokenKind = currentToken.kind
         eat(sign)
         var lhs : ExprTree = retTree
         var rhs : ExprTree = compequal
         sign match {
+          case BANG => {
+          debug("operator was BANG")
+          eat(BANG)
+          retTree = new Not(expression)
+          retTree.setPos(currentToken)
+        }
           case OR => {
             debug("operator was OR")
             retTree = new Or(lhs,rhs)
