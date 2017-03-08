@@ -74,6 +74,8 @@ object Main {
     }
     
     var pass = true;
+    //var file = new File("/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/ComplexNumbers.p0")
+
     var parser : Trees.Program = null
     for(file <- testFiles){
       try{
@@ -85,7 +87,7 @@ object Main {
       var test = parser.toString().toCharArray().iterator
       var check = scala.io.Source.fromFile(file.toString + ".ast").toIterator
       var ok = false
-     
+
       while(test.hasNext && check.hasNext){
         if(test.next().equals(check.next())){
           ok = true

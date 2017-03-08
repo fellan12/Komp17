@@ -40,145 +40,167 @@ object Printer {
     }
 
   def apply(tree: Tree): String = {
-    val stringRep = new StringBuilder
+    val codeBuilder = new StringBuilder
 
     tree match {
       case prog: Program => {
         prog.classes.foreach(                         
-            clas => stringRep.append((apply(clas)))
+            clas => codeBuilder.append((apply(clas)))
         )
-        stringRep.append(apply(prog.main))
+        codeBuilder.append(apply(prog.main))
       }
       
       case clas: ClassDecl => {
-        stringRep.append(strRep(CLASS))
-        stringRep.append("" + clas.id.value)
+        codeBuilder.append(strRep(CLASS))
+        codeBuilder.append("" + clas.id.value)
         clas.parent match {
-          case Some(p) => stringRep.append(strRep(EXTENDS) + " " + p.value)
+          case Some(p) => codeBuilder.append(strRep(EXTENDS) + " " + p.value)
         }
-        stringRep.append( " {\n")
+        codeBuilder.append( " {\n")
         clas.vars.foreach(                           
-            v => stringRep.append(apply(v))
+            v => codeBuilder.append(apply(v))
         )
         clas.methods.foreach(                         
-            m => stringRep.append(apply(m))
+            m => codeBuilder.append(apply(m))
         )
-        stringRep.append( "}\n")
+        codeBuilder.append( "}\n")
       }
       
       case varDec: VarDecl => {
-        stringRep.append(indent + strRep(VAR) + " " +  varDec.id.value + " : " + apply(varDec.tpe) + " = " + apply(varDec.expr) + "\n")
+        codeBuilder.append(indent + strRep(VAR) + " " +  varDec.id.value + " : " + apply(varDec.tpe) + " = " + apply(varDec.expr) + "\n")
       }
       
       case mainMet: MainMethod => {
-         stringRep.append(strRep(OBJECT) + " " + mainMet.main.id.value)
+         codeBuilder.append(strRep(OBJECT) + " " + mainMet.main.id.value)
         if (!mainMet.main.args.isEmpty) {
-          stringRep.append((apply(mainMet.main.args.head)))
+          codeBuilder.append((apply(mainMet.main.args.head)))
         }
         mainMet.main.args.foreach(                              
-            a => stringRep.append(", " + apply(a))
+            a => codeBuilder.append(", " + apply(a))
         )
-        stringRep.append( " : " + apply(mainMet.main.retType) + " = {\n")
+        codeBuilder.append( " : " + apply(mainMet.main.retType) + " = {\n")
 
         mainMet.main.vars.foreach(
-            v => stringRep.append(apply(v))
+            v => codeBuilder.append(apply(v))
         )
         if (!mainMet.main.exprs.isEmpty) {
-          stringRep.append(apply(mainMet.main.exprs.head) + ";")
+          codeBuilder.append(apply(mainMet.main.exprs.head) + ";")
         }
         mainMet.main.exprs.foreach(                             
-            e => stringRep.append(apply(e) + ";\n")
+            e => codeBuilder.append(apply(e) + ";\n")
         )
-        stringRep.append(apply(mainMet.main.retExpr))
-        stringRep.append( "\n}\n")
+        codeBuilder.append(apply(mainMet.main.retExpr))
+        codeBuilder.append( "\n}\n")
+      }
+      
+      //MAIN  --- USE LATER
+      case mainDecl: MainDecl => {
+         codeBuilder.append(strRep(OBJECT) + " " + mainDecl.obj.value)
+        
+        codeBuilder.append( " extends " + mainDecl.parent.value +  " = {\n")
+
+        mainDecl.vars.foreach(
+            v => codeBuilder.append(apply(v))
+        )
+        
+        if (!mainDecl.exprs.isEmpty) {
+          codeBuilder.append(apply(mainDecl.exprs.head) + ";")
+        }
+        var lastExpr = mainDecl.exprs.last;
+        mainDecl.exprs.tail.dropRight(1).foreach(                             
+            e => codeBuilder.append(apply(e) + ";\n")
+        )
+        codeBuilder.append(apply(lastExpr))
+
+        codeBuilder.append( "\n}\n")
       }
       
       case method: MethodDecl => {
-        stringRep.append(strRep(DEF) + " " + method.id.value)
+        codeBuilder.append(strRep(DEF) + " " + method.id.value)
         if (!method.args.isEmpty) {
-          stringRep.append((apply(method.args.head)))
+          codeBuilder.append((apply(method.args.head)))
         }
         method.args.foreach(                              
-            a => stringRep.append(", " + apply(a))
+            a => codeBuilder.append(", " + apply(a))
         )
-        stringRep.append( ") : " + apply(method.retType) + " = {\n")
+        codeBuilder.append( ") : " + apply(method.retType) + " = {\n")
         // BODY
         method.vars.foreach(
-            v => stringRep.append(apply(v))
+            v => codeBuilder.append(apply(v))
         )
         if (!method.exprs.isEmpty) {
-          stringRep.append(apply(method.exprs.head) + ";")
+          codeBuilder.append(apply(method.exprs.head) + ";")
         }
         //continue on tail
         method.exprs.tail.foreach(                             
-            e => stringRep.append(apply(e) + ";\n")
+            e => codeBuilder.append(apply(e) + ";\n")
         )
-        stringRep.append(apply(method.retExpr))
-        stringRep.append( "\n}\n")
+        codeBuilder.append(apply(method.retExpr))
+        codeBuilder.append( "\n}\n")
       }
       
       case id: Identifier => {
-        stringRep.append(id.value)
+        codeBuilder.append(id.value)
       }
       
       case formal: Formal => {
-        stringRep.append(apply(formal.id)+ " : " + apply(formal.tpe))
+        codeBuilder.append(apply(formal.id)+ " : " + apply(formal.tpe))
       }
       
       case tpe: TypeTree => {
         tpe match {
-          case _: IntType => stringRep.append( "Int")
-          case _: StringType =>  stringRep.append( "String")
-          case _: BooleanType => stringRep.append( "Bool")
-          case _: UnitType => stringRep.append( "Unit")
+          case _: IntType => codeBuilder.append( "Int")
+          case _: StringType =>  codeBuilder.append( "String")
+          case _: BooleanType => codeBuilder.append( "Bool")
+          case _: UnitType => codeBuilder.append( "Unit")
           case _ => "Unknown Type"
         }
       }
       
       case expr: ExprTree => expr match {
-        case and: And => stringRep.append(apply(and.lhs) + " " + strRep(AND) + " " + apply(and.rhs))
-        case or: Or => stringRep.append(apply(or.lhs) + " " + strRep(OR) + " " + apply(or.rhs))
-        case plus: Plus => stringRep.append(apply(plus.lhs) + " " + strRep(PLUS) + " " + apply(plus.rhs))
-        case minus: Minus => stringRep.append(apply(minus.lhs) + " " + strRep(MINUS) + " " + apply(minus.rhs))
-        case times: Times => stringRep.append(apply(times.lhs) + " " + strRep(TIMES) + " " + apply(times.rhs))
-        case div: Div => stringRep.append(apply(div.lhs) + " " + strRep(DIV) + " " + apply(div.rhs))
-        case lessthan: LessThan => stringRep.append(apply(lessthan.lhs) + " " + strRep(LESSTHAN) + " " + apply(lessthan.rhs))
-        case eq: Equals => stringRep.append(apply(eq.lhs) + " " + strRep(EQUALS) + " " + apply(eq.rhs))
+        case and: And => codeBuilder.append(apply(and.lhs) + " " + strRep(AND) + " " + apply(and.rhs))
+        case or: Or => codeBuilder.append(apply(or.lhs) + " " + strRep(OR) + " " + apply(or.rhs))
+        case plus: Plus => codeBuilder.append(apply(plus.lhs) + " " + strRep(PLUS) + " " + apply(plus.rhs))
+        case minus: Minus => codeBuilder.append(apply(minus.lhs) + " " + strRep(MINUS) + " " + apply(minus.rhs))
+        case times: Times => codeBuilder.append(apply(times.lhs) + " " + strRep(TIMES) + " " + apply(times.rhs))
+        case div: Div => codeBuilder.append(apply(div.lhs) + " " + strRep(DIV) + " " + apply(div.rhs))
+        case lessthan: LessThan => codeBuilder.append(apply(lessthan.lhs) + " " + strRep(LESSTHAN) + " " + apply(lessthan.rhs))
+        case eq: Equals => codeBuilder.append(apply(eq.lhs) + " " + strRep(EQUALS) + " " + apply(eq.rhs))
           
-        case int: IntLit => stringRep.append(int.value)
-        case str: StringLit => stringRep.append("\"" + str.value + "\"")
+        case int: IntLit => codeBuilder.append(int.value)
+        case str: StringLit => codeBuilder.append("\"" + str.value + "\"")
 
-        case tru: True => stringRep.append(true)
-        case fals: False => stringRep.append(false)
+        case tru: True => codeBuilder.append(true)
+        case fals: False => codeBuilder.append(false)
 
-        case ne: New => stringRep.append(strRep(NEW) + " " +apply(ne.tpe)+"()")
-        case no: Not => stringRep.append(strRep(BANG) + "(" + apply(no.expr) + ")")
+        case ne: New => codeBuilder.append(strRep(NEW) + " " +apply(ne.tpe)+"()")
+        case no: Not => codeBuilder.append(strRep(BANG) + "(" + apply(no.expr) + ")")
 
         case block: Block => {
-          stringRep.append("{\n")
+          codeBuilder.append("{\n")
           if (!block.exprs.isEmpty) {
-            stringRep.append(indent + apply(block.exprs.head))
+            codeBuilder.append(indent + apply(block.exprs.head))
           }
           //continue on tail
           block.exprs.tail.foreach(                             
-              e => stringRep.append(";\n" + apply(e))
+              e => codeBuilder.append(";\n" + apply(e))
           )
-          stringRep.append("\n" + indent + "}")
+          codeBuilder.append("\n" + indent + "}")
         }
         case i: If => {
-          stringRep.append(indent + strRep(IF) + " (" + apply(i.expr) + ") " + apply(i.thn))
+          codeBuilder.append(indent + strRep(IF) + " (" + apply(i.expr) + ") " + apply(i.thn))
           if(i.els.isDefined){
-          stringRep.append(indent + strRep(ELSE) + " " + apply(i.els.get))
+          codeBuilder.append(indent + strRep(ELSE) + " " + apply(i.els.get))
           }  
         }
-        case whil: While => stringRep.append(indent + strRep(WHILE) + " (" + apply(whil.cond) + ") " + apply(whil.body))
-        case print: Println => stringRep.append(indent + strRep(PRINTLN) + "(" + apply(print.expr) + ")")
-        case assign: Assign => stringRep.append(indent + apply(assign.id) +" " + strRep(EQSIGN) + " " + apply(assign.expr))
+        case whil: While => codeBuilder.append(indent + strRep(WHILE) + " (" + apply(whil.cond) + ") " + apply(whil.body))
+        case print: Println => codeBuilder.append(indent + strRep(PRINTLN) + "(" + apply(print.expr) + ")")
+        case assign: Assign => codeBuilder.append(indent + apply(assign.id) +" " + strRep(EQSIGN) + " " + apply(assign.expr))
         case _ => "Unknown Expr"
       }
       case _ => "Unknown Declaration"
     }
 
-    stringRep.toString
+    codeBuilder.toString
   }
 }
