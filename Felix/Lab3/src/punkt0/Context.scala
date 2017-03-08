@@ -3,7 +3,7 @@ package punkt0
 import java.io.File
 
 case class Context(
-  val files: Option[File] = None,
+  val file: File = null,
   val outDir: Option[File] = None,
   val doEval: Boolean = false,
   val doHelp: Boolean = false,
