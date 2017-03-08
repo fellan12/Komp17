@@ -5,6 +5,6 @@ class Fact {
 }
 
 object Main extends App {
-    println("f" + "oo" == "fo" + "o");
-    println(new Fact() == new Fact())
+   println("f" + "oo" == "fo" + "o");
+   println(new Fact() == new Fact())
 }

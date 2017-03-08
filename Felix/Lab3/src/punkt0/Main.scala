@@ -1,8 +1,11 @@
 package punkt0
 
 import java.io.File
+import java.io._
 import lexer._
 import ast._
+import scala.collection.mutable.ListBuffer
+
 
 object Main {
 
@@ -74,10 +77,10 @@ object Main {
     }
     
     var pass = true;
-    //var file = new File("/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/ComplexNumbers.p0")
-
     var parser : Trees.Program = null
-    for(file <- testFiles){
+    var files = ListBuffer.empty ++= testFiles.sorted
+    files -= new File("/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/Hej.p0")
+    for(file <- files){
       try{
         val iter = Lexer.run(file)(ctx)
         parser = Parser.run(iter)(ctx)
@@ -87,18 +90,84 @@ object Main {
       var test = parser.toString().toCharArray().iterator
       var check = scala.io.Source.fromFile(file.toString + ".ast").toIterator
       var ok = false
-
+      var testError : String = "";
+      var checkError : String = "";
       while(test.hasNext && check.hasNext){
-        if(test.next().equals(check.next())){
+        testError += test.next()
+        checkError += check.next()
+        if(testError.equals(checkError)){
           ok = true
         }else{
           ok = false
+          println("AST missmatch: " + file)
+          testError += test.next()
+          checkError += check.next()
+          testError += test.next()
+          checkError += check.next()
+          testError += test.next()
+          checkError += check.next()
+          testError += test.next()
+          checkError += check.next()
+          testError += test.next()
+          checkError += check.next()
+          println(testError)
+          println(checkError)
+          return
         }
       }
       if(ok){
         println("AST PASS: " + file)
-      }else{
-        println("AST missmatch: " + file)
+      }
+    }
+  }
+  
+  def runAllPrinterTests(ctx : Context) : Unit = {
+    var testFiles = List[File]()
+    val d = new File("/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid")
+    var testExtention = List("p0")
+    if (d.exists && d.isDirectory) {
+      testFiles = d.listFiles.filter(_.isFile).toList.filter{ 
+        file => testExtention.exists(file.getName.endsWith(_))
+      }
+    }
+    
+    var pass = true;
+    var firstParsed : Trees.Program = null
+    var secondParsed : Trees.Program = null    
+    var files = ListBuffer.empty ++= testFiles.sorted
+    files -= new File("/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/Hej.p0")
+    for(file <- files){
+      try{
+        val iter = Lexer.run(ctx.files.head)(ctx)
+        firstParsed = Parser.run(iter)(ctx)
+        var firstPrinted = Printer.apply(firstParsed)
+        
+        val printedFile = new PrintWriter(new File("printedFile.print" ))
+        printedFile.write(firstPrinted)
+        printedFile.close
+        
+        secondParsed = Parser.run(Lexer.run(new File("printedFile.print"))(ctx))(ctx)
+        
+      }catch{
+        case _ : Throwable => pass = false; println("Printer Error in file: " + file); return;
+      }
+     
+      var test = firstParsed.toString().toCharArray().iterator
+      var check = secondParsed.toString().toCharArray().iterator
+      var ok = false
+      
+      while(test.hasNext && check.hasNext){
+        if(test.next().equals(check.next())){
+          ok = true
+        }else{
+          println("Print missmatch: " + file)
+          ok = false
+          return
+        }
+      }
+      
+      if(ok){
+        println("Print PASS: " + file)
       }
     }
   }
@@ -124,6 +193,7 @@ object Main {
       println(Printer.apply(parser))
     } else if (ctx.doTest){
       runAllParserTests(ctx);
+      //runAllPrinterTests(ctx);
     }
     
   }

@@ -322,9 +322,9 @@ object Parser extends Phase[Iterator[Token], Program] {
 	 * Parse Expression
 	 */
     def expression: ExprTree = {
-      debug("Enter Expression")
+      debug("Enter EXPRESSION")
       var retTree : ExprTree = complogic
-      debug("still" + currentToken)
+      //debug("still" + currentToken)
       retTree.setPos(currentToken)
       retTree
     }
@@ -332,36 +332,35 @@ object Parser extends Phase[Iterator[Token], Program] {
     
     
     def complogic : ExprTree = {
-      debug("enter complogic")
+      debug("enter COMPLOGIC")
       var retTree : ExprTree = compequal
+      //println(currentToken)
       while (currentToken.kind == OR || currentToken.kind == AND) {
-        debug("found and or or")
         var sign : TokenKind = currentToken.kind
         eat(sign)
         var lhs : ExprTree = retTree
         var rhs : ExprTree = compequal
-        debug("sign" + sign)
         sign match {
           case OR => {
+            debug("operator was OR")
             retTree = new Or(lhs,rhs)
           }
           case AND => {
-            debug("sign was and")
+            debug("operator was AND")
             retTree = new And(lhs,rhs)
-            debug("created and")
           }
         }
       }
+      //println(currentToken)
       retTree.setPos(currentToken)
       retTree
     }
     def compequal : ExprTree = {
-      debug("enter compequal")
+      debug("enter COMPEQUAL")
       var retTree : ExprTree = comp
       
       
       while (currentToken.kind == LESSTHAN || currentToken.kind == EQUALS) {
-        debug("found lessthan or equals")
         var sign : TokenKind = currentToken.kind
         eat(sign)
         var lhs : ExprTree = retTree
@@ -369,9 +368,11 @@ object Parser extends Phase[Iterator[Token], Program] {
         
         sign match {
           case LESSTHAN => {
+            debug("operator was LESSTHAN")
             retTree = new LessThan(lhs,rhs)
           }
           case EQUALS => {
+            debug("operator was EQUALS")
             retTree = new Equals(lhs,rhs)
           }
         }
@@ -381,7 +382,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     }
     
     def comp : ExprTree = {
-      debug("enter comp")
+      debug("enter COMP")
       var retTree : ExprTree = term
   
     
@@ -393,9 +394,11 @@ object Parser extends Phase[Iterator[Token], Program] {
         var rhs : ExprTree = term
         sign match {
           case PLUS => {
+            debug("operator was PLUS")
             retTree = new Plus(lhs, rhs)
           }
           case MINUS => {
+            debug("operator was MINUS")
             retTree = new Minus(lhs, rhs)
           }
         }
@@ -406,7 +409,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     
     
     def term : ExprTree = {
-      debug("enter term")
+      debug("enter TERM")
       var retTree : ExprTree = expr
 
       while (currentToken.kind == TIMES || currentToken.kind == DIV) {
@@ -416,9 +419,11 @@ object Parser extends Phase[Iterator[Token], Program] {
         var rhs : ExprTree = expr
         sign match {
           case TIMES => {
+            debug("operator was TIMES")
             retTree = new Times(lhs, rhs)
           }
           case DIV => {
+            debug("operator was DIV")
             retTree = new Div(lhs, rhs)
           }
         }
@@ -428,11 +433,12 @@ object Parser extends Phase[Iterator[Token], Program] {
     }
     
     def expr : ExprTree = {
-      debug("enter expr")
+      debug("enter EXPR")
       var retTree : ExprTree = factor
-
+      //println(currentToken)
 
       while ( currentToken.kind == DOT) {
+        debug("enter expr DOT")
         // id
         eat(DOT)
         var id = identifier
@@ -465,7 +471,8 @@ object Parser extends Phase[Iterator[Token], Program] {
     }
     
     def factor : ExprTree = {
-      debug("enter factor")
+      debug("enter FAKTOR")
+      //println("token is " + currentToken)
       var retTree : ExprTree = null
       currentToken.kind match {
         
@@ -491,32 +498,34 @@ object Parser extends Phase[Iterator[Token], Program] {
         
         }
         case TRUE => {
-          debug("enter true")
+          debug("enter TRUE")
           eat(TRUE)
           retTree = new True()
           retTree.setPos(currentToken)
       
         }
         case FALSE => {
-          debug("enter false")
+          debug("enter FALSE")
           eat(FALSE)
+           //println("hej" + currentToken)
           retTree = new False()
           retTree.setPos(currentToken)
          
         }
         case THIS => {
-          
+          debug("enter THIS")
           eat(THIS)
           retTree = new This()
           retTree.setPos(currentToken)
         }
         case NULL => {
+          debug("enter NULL")
           eat(NULL)
           retTree = new Null()
           retTree.setPos(currentToken)
-          
         }
         case NEW => {
+          debug("enter NEW")
           eat(NEW)
           var id = identifier
           eat(LPAREN)
@@ -526,12 +535,14 @@ object Parser extends Phase[Iterator[Token], Program] {
         
         }
         case BANG => {
+          debug("enter BANG")
           eat(BANG)
           retTree = new Not(expression)
           retTree.setPos(currentToken)
        
         }
         case LPAREN => {
+          debug("enter LPAREN")
           eat(LPAREN)
           retTree = expression
           eat(RPAREN)
@@ -539,6 +550,7 @@ object Parser extends Phase[Iterator[Token], Program] {
    
         }
         case LBRACE => {
+          debug("enter LBRACE")
           eat(LBRACE)
           //Expressions in method
           var exprList = new ListBuffer[ExprTree]
@@ -547,6 +559,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 		         //Always parse for one expression
 		        exprList += expression
 		        while(currentToken.kind == SEMICOLON){
+		          debug("found semikolon")
 		          eat(SEMICOLON)
 		          exprList += expression
 		        }
@@ -556,7 +569,7 @@ object Parser extends Phase[Iterator[Token], Program] {
           retTree.setPos(currentToken)
         }
         case IF => {
-          debug("enter if")
+          debug("enter ID")
           eat(IF)
           eat(LPAREN)
         
@@ -573,24 +586,21 @@ object Parser extends Phase[Iterator[Token], Program] {
           retTree.setPos(currentToken)
         }
         case WHILE => {
-          debug("enter while")
+          debug("enter WHILE")
           eat(WHILE)
-          debug("ate while")
           eat(LPAREN)
-          debug("ate leftparent")
           var condRet = expression
-          debug("condexpr done")
           eat(RPAREN)
-          eat(LBRACE)
+          
           
           var bodyRet = expression
-          eat(RBRACE)
+         
           
           retTree = new While(condRet,bodyRet)
           retTree.setPos(currentToken)
         }
         case IDKIND => {
-          debug("enter idkind")
+          debug("enter IDKIND")
           retTree = identOrAssign
           retTree.setPos(currentToken)
         }
@@ -607,7 +617,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 		 * Parse Identifier
 		 */
 	def identifier: Identifier = {
-	  debug("enter identifier")
+	  debug("enter IDENTIFIER")
 	  var id : Identifier = null
 
 		try {
@@ -615,6 +625,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 		   * Current token should be, so just unpack it
 		   */
 			id = new Identifier(currentToken.toString.unpack("IDKIND").get)
+			debug("Found ID:" + id)
 		}
 		catch {
 			case nsee: NoSuchElementException => error("Unable to extract identifier", currentToken)
@@ -626,18 +637,18 @@ object Parser extends Phase[Iterator[Token], Program] {
 	}
 	
 	def identOrAssign: ExprTree = {
-	  debug("identorassign")
+	  debug("enter IDORASSIGN")
 	  var id = new Identifier(currentToken.toString.unpack("IDKIND").get)
 
 	  eat(IDKIND)
 	
 	  if(currentToken.kind == EQSIGN){
-	    debug("Found assign")
+	    debug("Found ASSIGN for ID " + id)
 	    eat(EQSIGN)
 	
 	    new Assign(id,expression)
 	  }else{
-	    debug("was id")
+	    debug("Found ID: " + id)
 	    id
 	  }
 	}

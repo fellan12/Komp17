@@ -1,8 +1,9 @@
 
-object HelloWorld extends App {
-	var ett : String = "hej";
-	var two : Int = 2;
-  	while(true){
-  		println("hej")
-  	}
+
+object Main extends App {
+
+    sign = (n < 0 && d < 0 || (0 < n || n == 0) && (0 < d || d == 0)); 
+   	println("Done!")
+ 
 }
+
