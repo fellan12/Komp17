@@ -3,11 +3,7 @@ package ast
 
 object Trees {
   sealed trait Tree extends Positioned
-  case class Program(main: MainMethod, classes: List[ClassDecl]) extends Tree
-  case class MainMethod(obj: Identifier, parent: Identifier, main: MethodDecl) extends Tree {
-    val id = Identifier("Main")
-    def exprs: List[ExprTree] = main.exprs ::: (main.retExpr :: Nil)
-  }
+  case class Program(main: MainDecl, classes: List[ClassDecl]) extends Tree
   case class MainDecl(obj: Identifier, parent: Identifier, vars: List[VarDecl], exprs: List[ExprTree]) extends Tree
   case class ClassDecl(id: Identifier, parent: Option[Identifier], vars: List[VarDecl], methods: List[MethodDecl]) extends Tree
   case class VarDecl(tpe: TypeTree, id: Identifier, expr: ExprTree) extends Tree
