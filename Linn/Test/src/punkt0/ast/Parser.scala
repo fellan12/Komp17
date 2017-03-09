@@ -323,7 +323,14 @@ object Parser extends Phase[Iterator[Token], Program] {
 	 */
     def expression: ExprTree = {
       debug("Enter Expression")
-      var retTree : ExprTree = or
+       var retTree : ExprTree = null
+      if (currentToken.kind == BANG) {
+        retTree = new Not(or)
+      }
+      else {
+        retTree = or
+      }
+     
       //debug("still" + currentToken)
       retTree.setPos(currentToken)
       retTree
