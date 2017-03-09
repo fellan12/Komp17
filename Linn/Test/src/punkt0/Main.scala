@@ -152,7 +152,7 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    var input = Array("--ast", "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Test/testprograms/lab3/valid/NewtonsMethod.p0");
+    var input = Array("--ast", "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Test/testprograms/lab3/valid/Hej.p0");
     val ctx = processOptions(input)
     val runTests = false;
     

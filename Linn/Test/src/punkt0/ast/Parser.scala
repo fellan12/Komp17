@@ -6,7 +6,6 @@ import scala.collection.mutable.ListBuffer
 import lexer._
 
 object Parser extends Phase[Iterator[Token], Program] {
-  
   // Helper class for unpacking values of the kind "X(value)"
 	implicit class UnpackValues(val str: String) {
 		def unpack(tpe: String): Option[String] = {
@@ -22,7 +21,9 @@ object Parser extends Phase[Iterator[Token], Program] {
     import Reporter._
     /** Store the current token, as read from the lexer. */
     var currentToken: Token = new Token(BAD)
-    var bugging = false;
+    var bugging = true;
+    var gotBang = false;
+
     
     def readToken: Unit = {
       if (tokens.hasNext) {
@@ -60,6 +61,7 @@ object Parser extends Phase[Iterator[Token], Program] {
      * Parse Program
      */
     def program: Program = {
+      debug("enter program")
     	var pos = currentToken
 		  
     	//CLASSES
@@ -125,15 +127,18 @@ object Parser extends Phase[Iterator[Token], Program] {
      * Parse Main declaration
      */
     def mainDecl : MainMethod = {
-      
+      debug("enter maindecl")
       var pos = currentToken  
       eat(OBJECT)
       //ID
+      debug("read mainID")
       var mainID = identifier
-            
+      debug("mainID was " + mainID)
       //ID OF PARENT
       eat(EXTENDS)
       var parentID = identifier
+      debug("parentID was " + parentID)
+      
       
       eat(LBRACE)
     
@@ -323,16 +328,11 @@ object Parser extends Phase[Iterator[Token], Program] {
 	 */
     def expression: ExprTree = {
       debug("Enter Expression")
-       var retTree : ExprTree = null
-      if (currentToken.kind == BANG) {
-        retTree = new Not(or)
-      }
-      else {
-        retTree = or
-      }
+       var retTree : ExprTree = or
      
       //debug("still" + currentToken)
       retTree.setPos(currentToken)
+      debug("return from expression")
       retTree
     }
     def or : ExprTree = {
@@ -351,15 +351,16 @@ object Parser extends Phase[Iterator[Token], Program] {
         
       }
       retTree.setPos(currentToken)
+      debug("return from or")
       retTree
     }
     
     
     
     def and : ExprTree = {
-      debug("enter complogic")
+      debug("enter and")
       var retTree : ExprTree = compequal
-      //println(currentToken)
+      debug("" + currentToken)
       while (currentToken.kind == AND) {
         debug("found and")
         var sign : TokenKind = currentToken.kind
@@ -377,12 +378,13 @@ object Parser extends Phase[Iterator[Token], Program] {
       }
       //println(currentToken)
       retTree.setPos(currentToken)
+      debug("return from and")
       retTree
     }
     def compequal : ExprTree = {
       debug("enter compequal")
       var retTree : ExprTree = comp
-      
+      //debug("" + currentToken)
       
       while (currentToken.kind == LESSTHAN || currentToken.kind == EQUALS) {
         debug("found lessthan or equals")
@@ -391,23 +393,27 @@ object Parser extends Phase[Iterator[Token], Program] {
         var lhs : ExprTree = retTree
         var rhs : ExprTree = comp
         
+        
         sign match {
           case LESSTHAN => {
             retTree = new LessThan(lhs,rhs)
           }
           case EQUALS => {
+            debug("enter equals")
             retTree = new Equals(lhs,rhs)
+            debug("current: " + currentToken)
           }
         }
       }
       retTree.setPos(currentToken)
+      debug("return from compequal")
       retTree
     }
     
     def comp : ExprTree = {
       debug("enter comp")
       var retTree : ExprTree = term
-  
+      
     
       while (currentToken.kind == PLUS || currentToken.kind == MINUS) {
         var sign : TokenKind = currentToken.kind
@@ -425,6 +431,7 @@ object Parser extends Phase[Iterator[Token], Program] {
         }
       }
       retTree.setPos(currentToken)
+      debug("return from comp")
       retTree
     }
     
@@ -432,7 +439,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     def term : ExprTree = {
       debug("enter term")
       var retTree : ExprTree = expr
-
+      //debug("" + currentToken)
       while (currentToken.kind == TIMES || currentToken.kind == DIV) {
         var sign : TokenKind = currentToken.kind
         eat(sign)
@@ -448,13 +455,14 @@ object Parser extends Phase[Iterator[Token], Program] {
         }
       }
       retTree.setPos(currentToken)
+      debug("return from term")
       retTree
     }
     
     def expr : ExprTree = {
       debug("enter expr")
-      var retTree : ExprTree = factor
-      //println(currentToken)
+      var retTree : ExprTree = bang
+      //debug("" + currentToken)
 
       while ( currentToken.kind == DOT) {
         // id
@@ -485,7 +493,22 @@ object Parser extends Phase[Iterator[Token], Program] {
       }
       
       retTree.setPos(currentToken)
-      return retTree
+      debug("return from expr")
+      retTree
+    }
+    
+    def bang : ExprTree = {
+      var retTree : ExprTree = null
+      if (currentToken.kind == BANG) {
+        eat(BANG)
+        retTree = new Not(factor)
+        gotBang = false
+      }
+      else {
+        retTree = factor
+      }
+      
+      retTree
     }
     
     def factor : ExprTree = {
@@ -508,6 +531,7 @@ object Parser extends Phase[Iterator[Token], Program] {
           retTree = new IntLit(currentToken.toString.unpack("INTLITKIND").get.toInt)
           retTree.setPos(currentToken)
           eat(INTLITKIND)
+          debug("returns from intlitkind")
         }
         case STRLITKIND => {
           retTree = new StringLit(currentToken.toString.unpack("STRLITKIND").get)
@@ -551,15 +575,22 @@ object Parser extends Phase[Iterator[Token], Program] {
           retTree.setPos(currentToken)
         
         }
-        case BANG => {
+       /* case BANG => {
+          debug("enter bang")
+          gotBang = true
           eat(BANG)
-          retTree = new Not(expression)
+          debug("bang-expression")
+          retTree = expression
+          //retTree = new Not(expression)
+          debug("done with bang")
           retTree.setPos(currentToken)
        
-        }
+        } */
         case LPAREN => {
+          debug("found leftparen")
           eat(LPAREN)
           retTree = expression
+          debug("done with lparenexpression")
           eat(RPAREN)
           retTree.setPos(currentToken)
    
@@ -586,8 +617,9 @@ object Parser extends Phase[Iterator[Token], Program] {
         case IF => {
           debug("enter if")
           eat(IF)
+          debug("eats lparen")
           eat(LPAREN)
-        
+          debug("find ifret")
           var ifRet = expression
           eat(RPAREN)
           var thenRet = expression
@@ -627,7 +659,7 @@ object Parser extends Phase[Iterator[Token], Program] {
         }
         
       }
-      
+      debug("return from factor")
       retTree
     }
     	
@@ -665,7 +697,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 	
 	    new Assign(id,expression)
 	  }else{
-	    debug("was id")
+	    debug("was id: " + id)
 	    id
 	  }
 	}
