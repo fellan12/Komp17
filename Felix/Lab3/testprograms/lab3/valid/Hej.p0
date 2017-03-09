@@ -1,9 +1,11 @@
 
-
 object Main extends App {
-
-    sign = (n < 0 && d < 0 || (0 < n || n == 0) && (0 < d || d == 0)); 
-   	println("Done!")
- 
+    if(!(numerator == 0) && !(denominator == 0)) {
+            gcd_ = util.gcd(numerator, denominator);
+            if(!(gcd_ == 1)) {
+                numerator = numerator / gcd_;
+                denominator = denominator / gcd_
+            }
+        }
 }
 

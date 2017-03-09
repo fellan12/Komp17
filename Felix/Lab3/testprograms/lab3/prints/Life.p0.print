@@ -48,11 +48,11 @@ class Matrix {
     var cols : Int = 0;
   def init(n : Int, m : Int) : Matrix = {
   cols = m;
-elements = new Arr().ofDim(n * m);
+elements = new Arr().ofDim((n * m));
 this
 }
   def unfold(i : Int, j : Int) : Int = {
-(cols * (i - 1) + (j - 1))
+((cols * (i - 1)) + (j - 1))
 }
   def index(i : Int, j : Int) : Int = {
 elements.apply(this.unfold(i, j))
@@ -75,8 +75,8 @@ rows = n;
 cols = m;
 i = 1;
 j = 1;
-  while ((i < rows || i == rows)) {
-    while ((j < cols || j == cols)) {
+  while (i < rows || i == rows) {
+    while (j < cols || j == cols) {
   bitbucket = this.kill(i, j);
 j = (j + 1)
   };
@@ -89,7 +89,7 @@ this
 cells.index(i, j) == 1
 }
   def modulo(left : Int, right : Int) : Int = {
-  var m : Int = (left - right * left / right);
+  var m : Int = (left - (right * (left / right)));
     if (m == 0)
  m = right
  ;
@@ -160,12 +160,12 @@ this
   next = new Board().init(rows, cols);
 i = 1;
 j = 1;
-  while ((i < rows || i == rows)) {
-    while ((j < cols || j == cols)) {
+  while (i < rows || i == rows) {
+    while (j < cols || j == cols) {
   n = board.neighbours(i, j);
   if (board.alive(i, j))
  {
-    if (((n - 2) < 0 || (3 - n) < 0))
+    if ((n - 2) < 0 || (3 - n) < 0)
  bitbucket = next.kill(i, j)
    else
  bitbucket = next.birth(i, j)
@@ -185,7 +185,7 @@ i = (i + 1);
 j = 1
   };
 board = next;
-rows * cols
+(rows * cols)
 }
   def print() : String = {
   var i : Int = 0;
@@ -193,8 +193,8 @@ rows * cols
   var m : String = "";
   i = 1;
 j = 1;
-  while ((i < rows || i == rows)) {
-    while ((j < cols || j == cols)) {
+  while (i < rows || i == rows) {
+    while (j < cols || j == cols) {
     if (board.alive(i, j))
  m = (m + "o")
    else

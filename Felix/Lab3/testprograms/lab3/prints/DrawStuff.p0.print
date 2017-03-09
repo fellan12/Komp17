@@ -85,13 +85,13 @@ class ConcentricCircles extends Drawable {
   var xTemp : Int = 0;
   resX = 65;
 resY = 30;
-x0 = (x * 2500 - 15000);
-y0 = (y * 4500 - 15000);
+x0 = ((x * 2500) - 15000);
+y0 = ((y * 4500) - 15000);
 x = 0;
 y = 0;
 iter = (0 - 1);
 maxIter = 100;
-  while (((x * x + y * y) < 100000000 && iter < maxIter)) {
+  while (((x * x) + (y * y)) < 100000000 && iter < maxIter) {
   xTemp = (x0 + x);
 y = (y0 + y);
 x = xTemp;
@@ -114,15 +114,15 @@ class Mandelbrot extends Drawable {
   var xTemp : Int = 0;
   resX = 70;
 resY = 40;
-x0 = ((x - 25) / 5 - 1);
-y0 = (y - 15) / 3;
+x0 = (((x - 25) / 5) - 1);
+y0 = ((y - 15) / 3);
 x = 0;
 y = 0;
 iter = (0 - 2);
 maxIter = 1000;
-  while (((x * x + y * y) < 50 && iter < maxIter)) {
-  xTemp = ((x * x - y * y) + x0);
-y = (2 * x * y + y0);
+  while (((x * x) + (y * y)) < 50 && iter < maxIter) {
+  xTemp = (((x * x) - (y * y)) + x0);
+y = (((2 * x) * y) + y0);
 x = xTemp;
 iter = (iter + 1)
   };
@@ -145,15 +145,15 @@ class Cross extends Drawable {
   s = 13;
 resX = 50;
 resY = 30;
-x0 = (x * 80 * s / resX - 40 * s);
-y0 = (y * 400 * s / resY - 200 * s);
+x0 = ((((x * 80) * s) / resX) - (40 * s));
+y0 = ((((y * 400) * s) / resY) - (200 * s));
 x = 0;
 y = 0;
 iter = (0 - 2);
 maxIter = 10000;
-  while (((y * y - x * x) < 10000 && iter < maxIter)) {
-  xTemp = ((x * x - y * y) + x0) / 10;
-y = (2 * x * y * x + y0) / 100;
+  while (((y * y) - (x * x)) < 10000 && iter < maxIter) {
+  xTemp = ((((x * x) - (y * y)) + x0) / 10);
+y = (((((2 * x) * y) * x) + y0) / 100);
 x = xTemp;
 iter = (iter + 1)
   };

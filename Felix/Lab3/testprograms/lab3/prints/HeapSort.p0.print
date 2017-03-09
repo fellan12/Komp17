@@ -77,7 +77,7 @@ this
 }
   def createHeap() : Int = {
   var k : Int = 0;
-  k = (size / 2 - 1);
+  k = ((size / 2) - 1);
   while ((0 - 1) < k) {
   foo = this.siftDown(k);
 k = (k - 1)
@@ -88,7 +88,7 @@ k = (k - 1)
   var k : Int = 0;
   var desc : Int = 0;
   k = kk;
-desc = (2 * k + 1);
+desc = ((2 * k) + 1);
   while (desc < size) {
     if ((desc + 1) < size)
    if (array.apply(desc) < array.apply((desc + 1)))
@@ -103,7 +103,7 @@ desc = (2 * k + 1);
  {
   foo = this.exchange(k, desc);
 k = desc;
-desc = (2 * k + 1)
+desc = ((2 * k) + 1)
   }
   };
 0

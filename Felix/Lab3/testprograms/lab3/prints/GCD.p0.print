@@ -32,7 +32,7 @@ a
 }
   def modulo(number : Int, mod : Int) : Int = {
   r = number;
-  while ((mod < r || mod == r)) {
+  while (mod < r || mod == r) {
   r = (r - mod)
   };
 r
