@@ -13,7 +13,7 @@ new ComplexNumber().init((0 - re), (0 - im))
 new ComplexNumber().init((re + b.real()), (im + b.imaginary()))
 }
   def multiply(b : ComplexNumber) : ComplexNumber = {
-new ComplexNumber().init((re * b.real() - im * b.imaginary()), (im * b.real() + re * b.imaginary()))
+new ComplexNumber().init(((re * b.real()) - (im * b.imaginary())), ((im * b.real()) + (re * b.imaginary())))
 }
   def real() : Int = {
 re

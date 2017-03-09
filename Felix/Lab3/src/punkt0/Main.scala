@@ -88,7 +88,7 @@ object Main {
       }catch{
         case _ : Throwable => {
           pass = false; println("Syntax Error in file: " + file.toString().substring(57).toString()); 
-          return;
+          System.exit(1)
         }
       }
       var test = parser.toString().toCharArray().iterator
@@ -104,19 +104,15 @@ object Main {
         }else{
           ok = false
           println("AST missmatch: " + file.toString().substring(57).toString())
-          testError += test.next()
-          checkError += check.next()
-          testError += test.next()
-          checkError += check.next()
-          testError += test.next()
-          checkError += check.next()
-          testError += test.next()
-          checkError += check.next()
-          testError += test.next()
-          checkError += check.next()
+          for(i <- 1 to 20){
+            testError += test.next()
+            checkError += check.next()
+          }
+          println("Tested:")
           println(testError)
+          println("Correct:")
           println(checkError)
-          return
+          System.exit(1)
         }
       }
       
@@ -138,7 +134,9 @@ object Main {
     
     var pass = true;
     var firstParsed : Trees.Program = null
-    var secondParsed : Trees.Program = null    
+    var secondParsed : Trees.Program = null
+    var firstPrinted : String = ""
+    var secondPrinted : String = ""
     var files = ListBuffer.empty ++= testFiles.sorted
     files -= new File("/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/Hej.p0")
     for(file <- files){
@@ -146,7 +144,7 @@ object Main {
         //First Parse
         val iter = Lexer.run(file)(ctx)
         firstParsed = Parser.run(iter)(ctx)
-        var firstPrinted = Printer.apply(firstParsed)
+        firstPrinted = Printer.apply(firstParsed)
         
         //Print to File
         var printedFile = new File("/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/prints/" + file.toString().substring(64).toString() + ".print")
@@ -164,11 +162,13 @@ object Main {
         
         //Second Parse
         secondParsed = Parser.run(Lexer.run(printedFile)(ctx))(ctx)
+        secondPrinted = Printer.apply(firstParsed)
+
         
        }catch{
           case _ : Throwable => {
           pass = false; println("Printer Error in file: " + file.toString().substring(57).toString()); 
-          return;
+          System.exit(1)
         }
       }
      
@@ -185,19 +185,15 @@ object Main {
         }else{
           ok = false
           println("Print missmatch: " + file.toString().substring(57).toString())
-          testError += test.next()
-          checkError += check.next()
-          testError += test.next()
-          checkError += check.next()
-          testError += test.next()
-          checkError += check.next()
-          testError += test.next()
-          checkError += check.next()
-          testError += test.next()
-          checkError += check.next()
+          for(i <- 1 to 20){
+            testError += test.next()
+            checkError += check.next()
+          }
+          println("First:")
           println(testError)
+          println("Second:")
           println(checkError)
-          return
+          System.exit(1)
         }
       }
       
@@ -228,7 +224,7 @@ object Main {
       
     } else if (ctx.doTest){
       runAllParserTests(ctx);
-      //runAllPrinterTests(ctx);
+      runAllPrinterTests(ctx);
     }
     
   }

@@ -101,7 +101,7 @@ left = 0;
 var_cont = true;
   while (var_cont) {
   medium = (left + right);
-medium = medium / 2;
+medium = (medium / 2);
 aux01 = number.apply(medium);
   if (num < aux01)
  right = (medium - 1)
@@ -142,7 +142,7 @@ number = new Arr().ofDim(sz);
 j = 1;
 k = (size + 1);
   while (j < size) {
-  aux01 = 2 * j;
+  aux01 = (2 * j);
 aux02 = (k - 3);
 number.update(j, (aux01 + aux02));
 j = (j + 1);

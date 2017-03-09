@@ -7,39 +7,6 @@ import scala.collection.mutable.StringBuilder
 
 object Printer {
   var indent = "  ";
-  def strRep(x: TokenKind): String = x match {
-        case LBRACE => "{"
-        case RBRACE => "}"
-        case LPAREN => "("
-        case RPAREN => ")"
-        case EQSIGN => "="
-        case EQUALS => "=="
-        case AND => "&&"
-        case OR => "||"
-        case BANG => "!"
-        case DOT => "."
-        case COMMA => ","
-        case COLON => ":"
-        case SEMICOLON => ";"
-        case PLUS => "+"
-        case MINUS => "-"
-        case DIV => "/"
-        case TIMES => "*"
-        case LESSTHAN => "<"
-        case CLASS => "class"
-        case EXTENDS => "extends"
-        case VAR => "var"
-        case OBJECT => "object"
-        case DEF => "def"
-        case NEW => "new"
-        case IF => "if"
-        case ELSE => "else"
-        case WHILE => "while"
-        case PRINTLN => "println"
-        case THIS => "this"
-        case OVERRIDE => "override"
-        case _ => "Unknownn String Representation"
-    }
 
   def apply(tree: Tree): String = {
     val codeBuilder = new StringBuilder
@@ -164,12 +131,12 @@ object Printer {
       }
       
       case expr: ExprTree => expr match {
-        case and: And => codeBuilder.append("(" + apply(and.lhs) + " " + strRep(AND) + " " + apply(and.rhs) + ")")
-        case or: Or => codeBuilder.append("(" + apply(or.lhs) + " " + strRep(OR) + " " + apply(or.rhs)+ ")")
-        case plus: Plus => codeBuilder.append("(" + apply(plus.lhs) + " " + strRep(PLUS) + " " + apply(plus.rhs) + ")")
-        case minus: Minus => codeBuilder.append("(" +apply(minus.lhs) + " " + strRep(MINUS) + " " + apply(minus.rhs) + ")")
-        case times: Times => codeBuilder.append(apply(times.lhs) + " " + strRep(TIMES) + " " + apply(times.rhs))
-        case div: Div => codeBuilder.append(apply(div.lhs) + " " + strRep(DIV) + " " + apply(div.rhs))
+        case and: And => codeBuilder.append(apply(and.lhs) + " " + strRep(AND) + " " + apply(and.rhs))
+        case or: Or => codeBuilder.append(apply(or.lhs) + " " + strRep(OR) + " " + apply(or.rhs))
+        case plus: Plus => codeBuilder.append("("+ apply(plus.lhs) + " " + strRep(PLUS) + " " + apply(plus.rhs) + ")")
+        case minus: Minus => codeBuilder.append("("+ apply(minus.lhs) + " " + strRep(MINUS) + " " + apply(minus.rhs) + ")")
+        case times: Times => codeBuilder.append("("+apply(times.lhs) + " " + strRep(TIMES) + " " + apply(times.rhs)+ ")")
+        case div: Div => codeBuilder.append("("+apply(div.lhs) + " " + strRep(DIV) + " " + apply(div.rhs)+ ")")
         case lessthan: LessThan => codeBuilder.append(apply(lessthan.lhs) + " " + strRep(LESSTHAN) + " " + apply(lessthan.rhs))
         case eq: Equals => codeBuilder.append(apply(eq.lhs) + " " + strRep(EQUALS) + " " + apply(eq.rhs))
           
@@ -221,4 +188,38 @@ object Printer {
 
     codeBuilder.toString
   }
+  
+  def strRep(x: TokenKind): String = x match {
+        case LBRACE => "{"
+        case RBRACE => "}"
+        case LPAREN => "("
+        case RPAREN => ")"
+        case EQSIGN => "="
+        case EQUALS => "=="
+        case AND => "&&"
+        case OR => "||"
+        case BANG => "!"
+        case DOT => "."
+        case COMMA => ","
+        case COLON => ":"
+        case SEMICOLON => ";"
+        case PLUS => "+"
+        case MINUS => "-"
+        case DIV => "/"
+        case TIMES => "*"
+        case LESSTHAN => "<"
+        case CLASS => "class"
+        case EXTENDS => "extends"
+        case VAR => "var"
+        case OBJECT => "object"
+        case DEF => "def"
+        case NEW => "new"
+        case IF => "if"
+        case ELSE => "else"
+        case WHILE => "while"
+        case PRINTLN => "println"
+        case THIS => "this"
+        case OVERRIDE => "override"
+        case _ => "Unknownn String Representation"
+    }
 }
