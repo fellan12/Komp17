@@ -21,7 +21,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     import Reporter._
     /** Store the current token, as read from the lexer. */
     var currentToken: Token = new Token(BAD)
-    var bugging = true;
+    var bugging = false;
     var gotBang = false;
 
     

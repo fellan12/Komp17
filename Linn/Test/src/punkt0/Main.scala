@@ -1,9 +1,12 @@
 package punkt0
 
 import java.io.File
+import java.util.Scanner
 import java.io._
 import lexer._
 import ast._
+import scala.collection.mutable.ListBuffer
+
 
 object Main {
 
@@ -36,7 +39,7 @@ object Main {
         processOption(args)
         
       case f :: args =>
-        ctx = ctx.copy(files = Some(new File(f)))
+        ctx = ctx.copy(file = new File(f))
         processOption(args)       
 
       case List() =>
@@ -76,28 +79,51 @@ object Main {
     
     var pass = true;
     var parser : Trees.Program = null
-    for(file <- testFiles.sorted.drop(9)){
+    var files = ListBuffer.empty ++= testFiles.sorted
+    files -= new File("/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Test/testprograms/lab3/valid/Hej.p0")
+    for(file <- files){
       try{
         val iter = Lexer.run(file)(ctx)
         parser = Parser.run(iter)(ctx)
       }catch{
-        case _ : Throwable => pass = false; println("Syntax Error in file: " + file); return;
+        case _ : Throwable => {
+          pass = false; println("Syntax Error in file: " + file.toString().substring(57).toString()); 
+          return;
+        }
       }
       var test = parser.toString().toCharArray().iterator
       var check = scala.io.Source.fromFile(file.toString + ".ast").toIterator
       var ok = false
-
+      var testError : String = "";
+      var checkError : String = "";
       while(test.hasNext && check.hasNext){
-        if(test.next().equals(check.next())){
+        testError += test.next()
+        checkError += check.next()
+        if(testError.equals(checkError)){
           ok = true
         }else{
           ok = false
-          println("AST missmatch: " + file)
+          println("AST missmatch: " + file.toString().substring(57).toString())
+          testError += test.next()
+          checkError += check.next()
+          testError += test.next()
+          checkError += check.next()
+          testError += test.next()
+          checkError += check.next()
+          testError += test.next()
+          checkError += check.next()
+          testError += test.next()
+          checkError += check.next()
+          println(testError)
+          println(checkError)
           return
         }
       }
+      
       if(ok){
-        println("AST PASS: " + file)
+        println("AST PASS: " + file.toString().substring(57).toString())
+        println(testError)
+        println(checkError)
       }
     }
   }
@@ -115,61 +141,94 @@ object Main {
     var pass = true;
     var firstParsed : Trees.Program = null
     var secondParsed : Trees.Program = null    
-    for(file <- testFiles.sorted.drop(9)){
+    var files = ListBuffer.empty ++= testFiles.sorted
+    files -= new File("/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Test/testprograms/lab3/valid/Hej.p0")
+    for(file <- files){
       try{
-        val iter = Lexer.run(ctx.files.head)(ctx)
+        //First Parse
+        val iter = Lexer.run(file)(ctx)
         firstParsed = Parser.run(iter)(ctx)
         var firstPrinted = Printer.apply(firstParsed)
         
-        val printedFile = new PrintWriter(new File("printedFile.print" ))
-        printedFile.write(firstPrinted)
-        printedFile.close
+        //Print to File
+        var printedFile = new File("/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/prints/" + file.toString().substring(64).toString() + ".print")
+        var writer : BufferedWriter = null;
+        if(!printedFile.exists){
+          file.createNewFile()
+          writer = new BufferedWriter(new FileWriter(printedFile))
+          writer.write(firstPrinted)
+          writer.close
+        }else{
+          writer = new BufferedWriter(new FileWriter(printedFile))
+          writer.write(firstPrinted)
+          writer.close
+        }
         
-        secondParsed = Parser.run(Lexer.run(new File("printedFile.print"))(ctx))(ctx)
+        //Second Parse
+        secondParsed = Parser.run(Lexer.run(printedFile)(ctx))(ctx)
         
-      }catch{
-        case _ : Throwable => pass = false; println("Printer Error in file: " + file); return;
+       }catch{
+          case _ : Throwable => {
+          pass = false; println("Printer Error in file: " + file.toString().substring(57).toString()); 
+          return;
+        }
       }
      
       var test = firstParsed.toString().toCharArray().iterator
       var check = secondParsed.toString().toCharArray().iterator
       var ok = false
-      
+      var testError : String = "";
+      var checkError : String = "";
       while(test.hasNext && check.hasNext){
-        if(test.next().equals(check.next())){
+        testError += test.next()
+        checkError += check.next()
+        if(testError.equals(checkError)){
           ok = true
         }else{
-          println("Print missmatch: " + file)
           ok = false
+          println("Print missmatch: " + file.toString().substring(57).toString())
+          testError += test.next()
+          checkError += check.next()
+          testError += test.next()
+          checkError += check.next()
+          testError += test.next()
+          checkError += check.next()
+          testError += test.next()
+          checkError += check.next()
+          testError += test.next()
+          checkError += check.next()
+          println(testError)
+          println(checkError)
           return
         }
       }
       
       if(ok){
-        println("Print PASS: " + file)
+        println("Print PASS: " + file.toString().substring(57).toString())
       }
     }
   }
 
   def main(args: Array[String]): Unit = {
-    var input = Array("--ast", "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Test/testprograms/lab3/valid/Hej.p0");
+    var input = Array("--ast", "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Test/testprograms/lab3/valid/VehicleRent.p0");
     val ctx = processOptions(input)
     val runTests = false;
-    
+    val iter = Lexer.run(ctx.file)(ctx)
+    val parser = Parser.run(iter)(ctx)
+
     if (ctx.doTokens) {
-      val iter = Lexer.run(ctx.files.head)(ctx)
       while (iter.hasNext) {
         val tok = iter.next()
         println(tok+"("+tok.line + ":" + tok.column +")")
       }
-    }  else if (ctx.doAST){
-      val iter = Lexer.run(ctx.files.head)(ctx)
-      val parser = Parser.run(iter)(ctx)
+      
+    } else if (ctx.doAST){
       println(parser)
+      
+      
     } else if (ctx.doPrint){
-      val iter = Lexer.run(ctx.files.head)(ctx)
-      val parser = Parser.run(iter)(ctx)
       println(Printer.apply(parser))
+      
     } else if (ctx.doTest){
       runAllParserTests(ctx);
       //runAllPrinterTests(ctx);
