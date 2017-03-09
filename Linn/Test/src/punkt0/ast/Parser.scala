@@ -323,29 +323,44 @@ object Parser extends Phase[Iterator[Token], Program] {
 	 */
     def expression: ExprTree = {
       debug("Enter Expression")
-      var retTree : ExprTree = complogic
+      var retTree : ExprTree = or
       //debug("still" + currentToken)
+      retTree.setPos(currentToken)
+      retTree
+    }
+    def or : ExprTree = {
+      debug("enter or")
+      var retTree : ExprTree = and
+      while (currentToken.kind == OR) {
+        var sign : TokenKind = currentToken.kind
+        eat(sign)
+        var lhs : ExprTree = retTree
+        var rhs : ExprTree = and
+        sign match {
+          case OR => {
+            retTree = new Or(lhs,rhs)
+          }
+        }
+        
+      }
       retTree.setPos(currentToken)
       retTree
     }
     
     
     
-    def complogic : ExprTree = {
+    def and : ExprTree = {
       debug("enter complogic")
       var retTree : ExprTree = compequal
       //println(currentToken)
-      while (currentToken.kind == OR || currentToken.kind == AND) {
-        debug("found and or or")
+      while (currentToken.kind == AND) {
+        debug("found and")
         var sign : TokenKind = currentToken.kind
         eat(sign)
         var lhs : ExprTree = retTree
         var rhs : ExprTree = compequal
         debug("sign" + sign)
         sign match {
-          case OR => {
-            retTree = new Or(lhs,rhs)
-          }
           case AND => {
             debug("sign was and")
             retTree = new And(lhs,rhs)
