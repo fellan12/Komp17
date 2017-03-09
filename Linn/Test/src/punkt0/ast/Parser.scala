@@ -438,13 +438,13 @@ object Parser extends Phase[Iterator[Token], Program] {
     
     def term : ExprTree = {
       debug("enter term")
-      var retTree : ExprTree = expr
+      var retTree : ExprTree = bang
       //debug("" + currentToken)
       while (currentToken.kind == TIMES || currentToken.kind == DIV) {
         var sign : TokenKind = currentToken.kind
         eat(sign)
         var lhs : ExprTree = retTree
-        var rhs : ExprTree = expr
+        var rhs : ExprTree = bang
         sign match {
           case TIMES => {
             retTree = new Times(lhs, rhs)
@@ -459,9 +459,25 @@ object Parser extends Phase[Iterator[Token], Program] {
       retTree
     }
     
+    def bang : ExprTree = {
+      debug("enter bang")
+      var retTree : ExprTree = null
+      if (currentToken.kind == BANG) {
+        debug("found bang")
+        eat(BANG)
+        retTree = new Not(expr)
+        gotBang = false
+      }
+      else {
+        retTree = expr
+      }
+      
+      retTree
+    }
+    
     def expr : ExprTree = {
       debug("enter expr")
-      var retTree : ExprTree = bang
+      var retTree : ExprTree = factor
       //debug("" + currentToken)
 
       while ( currentToken.kind == DOT) {
@@ -497,19 +513,7 @@ object Parser extends Phase[Iterator[Token], Program] {
       retTree
     }
     
-    def bang : ExprTree = {
-      var retTree : ExprTree = null
-      if (currentToken.kind == BANG) {
-        eat(BANG)
-        retTree = new Not(factor)
-        gotBang = false
-      }
-      else {
-        retTree = factor
-      }
-      
-      retTree
-    }
+    
     
     def factor : ExprTree = {
       debug("enter factor")

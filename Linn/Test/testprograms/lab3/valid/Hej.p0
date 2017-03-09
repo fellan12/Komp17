@@ -2,9 +2,9 @@
 
 
 object Main extends App {
-    if(!(numerator == 0) && !(denominator == 0)) {
-            
+    
+        if(!frac.isPos()) {
+            integerPart = 0 - integerPart
         }
- 
 }
 
