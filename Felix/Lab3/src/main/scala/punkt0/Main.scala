@@ -89,7 +89,7 @@ object Main {
         parser = Parser.run(iter)(ctx)
       }catch{
         case _ : Throwable => {
-          pass = false; println("Syntax Error in file: " + file.toString().substring(57).toString()); 
+          pass = false; println("Syntax Error in file: " + file.toString()); 
           System.exit(1)
         }
       }
@@ -105,7 +105,7 @@ object Main {
           ok = true
         }else{
           ok = false
-          println("AST missmatch: " + file.toString().substring(57).toString())
+          println("AST missmatch: " + file.toString())
           for(i <- 1 to 20){
             testError += test.next()
             checkError += check.next()
@@ -119,7 +119,7 @@ object Main {
       }
       
       if(ok){
-        println("AST PASS: " + file.toString().substring(57).toString())
+        println("AST PASS: " + file.toString())
       }
     }
   }
@@ -149,7 +149,7 @@ object Main {
         firstPrinted = Printer.apply(firstParsed)
         
         //Print to File
-        var printedFile = new File(validPath + file.toString().substring(64).toString() + ".print")
+        var printedFile = new File(file.toString() + ".print")
         var writer : BufferedWriter = null;
         if(!printedFile.exists){
           file.createNewFile()
@@ -169,7 +169,7 @@ object Main {
         
        }catch{
           case _ : Throwable => {
-          pass = false; println("Printer Error in file: " + file.toString().substring(57).toString()); 
+          pass = false; println("Printer Error in file: " + file.toString()); 
           System.exit(1)
         }
       }
@@ -186,7 +186,7 @@ object Main {
           ok = true
         }else{
           ok = false
-          println("Print missmatch: " + file.toString().substring(57).toString())
+          println("Print missmatch: " + file.toString())
           for(i <- 1 to 20){
             testError += test.next()
             checkError += check.next()
@@ -200,7 +200,7 @@ object Main {
       }
       
       if(ok){
-        println("Print PASS: " + file.toString().substring(57).toString())
+        println("Print PASS: " + file.toString())
       }
     }
   }
