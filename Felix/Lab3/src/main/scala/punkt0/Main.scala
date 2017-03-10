@@ -61,15 +61,14 @@ object Main {
     println("Usage: ./slacc [options] <file>")
     println("Options include:")
     println(" --help        displays this help")
-    println(" --tokens      displays the list of tokens")
+    println(" --token       displays the list of tokens")
     println(" --print       pretty-prints the program")
     println(" --ast         displays the AST")
-    println(" --test				Run Tests {YOU NEED TO SPECIFY CORRECT PATH TO /VALID IN MAIN METHOD}")
+    println(" --test        Run Tests {YOU NEED TO SPECIFY CORRECT PATH TO /VALID IN MAIN METHOD}")
     println(" -d <outdir>   generates class files in the specified directory")
   }
   
   def runAllParserTests(ctx : Context) : Unit = {
-        println("RUNT PARSER TEST")
     var testFiles = List[File]()
     val d = new File(validPath)    
     var testExtention = List("p0")
@@ -126,7 +125,6 @@ object Main {
   }
   
   def runAllPrinterTests(ctx : Context) : Unit = {
-    println("RUNT PRINTER TEST")
     var testFiles = List[File]()
     val d = new File(validPath)
     var testExtention = List("p0")
@@ -211,13 +209,11 @@ object Main {
     var input = Array("--test", "/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/Hej.p0");
     printPath = "/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/prints/"
     validPath = "/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/"
-    args.foreach(e => println(e))
     val ctx = processOptions(args)
     val runTests = false;
-
+    args.foreach(e=>println(e))
     if (ctx.doTokens) {
       val iter = Lexer.run(ctx.file)(ctx)
-      val parser = Parser.run(iter)(ctx)
       while (iter.hasNext) {
         val tok = iter.next()
         println(tok+"("+tok.line + ":" + tok.column +")")
@@ -234,7 +230,6 @@ object Main {
       println(Printer.apply(parser))
       
     } else if (ctx.doTest){
-      println("DO TESTS")
       runAllParserTests(ctx);
       runAllPrinterTests(ctx);
     }
