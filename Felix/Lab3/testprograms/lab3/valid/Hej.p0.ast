@@ -1,1 +1,0 @@
-Program(MainMethod(Identifier(HelloWorld),Identifier(App),MethodDecl(false,UnitType(),Identifier(HelloWorld),List(),List(VarDecl(StringType(),Identifier(ett),StringLit(hej)), VarDecl(IntType(),Identifier(two),IntLit(2))),List(),While(True(),Block(List(Println(StringLit(hej))))))),List())
