@@ -182,27 +182,40 @@ object Parser extends Phase[Iterator[Token], Program] {
 	    
 	    // Parse identifier of method declaration
 	    var id = identifier
-	      
+	    
 	    eat(LPAREN)
 	      
 	    // Arguments
 	    var argsList = new ListBuffer[Formal]
-		  while (currentToken.kind != RPAREN) {
-		    if (currentToken.kind == COMMA){
-			    eat(COMMA) 
-		    } else {
-		      // Identifier of argument
-			    var id = identifier
+	    if (currentToken.kind != RPAREN) {
+	      // Identifier of argument
+			  var id = identifier
 			
-			    eat(COLON)
+			  eat(COLON)
 			    
-			    // Type of argument
-			    var tpe = typ
+			  // Type of argument
+			  var tpe = typ
 			
-			    // Add to list of arguments
-			    argsList += new Formal(tpe, id)
-			  }
-		  }
+			  // Add to list of arguments
+			  argsList += new Formal(tpe, id)
+			  
+			  while (currentToken.kind != RPAREN) {
+		      if (currentToken.kind == COMMA){
+			      eat(COMMA) 
+		        // Identifier of argument
+			      var id = identifier
+			
+			      eat(COLON)
+			    
+			      // Type of argument
+			      var tpe = typ
+			
+			      // Add to list of arguments
+			      argsList += new Formal(tpe, id)
+  			  }
+  		  }
+  	  }
+		 
 	
 		  eat(RPAREN)
 	
@@ -415,14 +428,14 @@ object Parser extends Phase[Iterator[Token], Program] {
      */
     def term : ExprTree = {
       // Parse bang
-      var retTree : ExprTree = bang
+      var retTree : ExprTree = factor
      
       while (currentToken.kind == TIMES || currentToken.kind == DIV) {
         var sign : TokenKind = currentToken.kind
         eat(sign)
         
         var lhs : ExprTree = retTree
-        var rhs : ExprTree = bang
+        var rhs : ExprTree = factor
         
         sign match {
           case TIMES => {
@@ -441,7 +454,7 @@ object Parser extends Phase[Iterator[Token], Program] {
      * Parse Bang
      * Bang ::= (!)? MethodCall
      */
-    def bang : ExprTree = {
+    def factor : ExprTree = {
       var retTree : ExprTree = null
       
       // Check if bang and parse method call
@@ -615,7 +628,7 @@ object Parser extends Phase[Iterator[Token], Program] {
           retTree.setPos(currentToken)
         }
         case _ => {
-          error("Expression failed")
+          fatal("Invalid Expression", currentToken)
         }       
       }
       retTree
@@ -626,18 +639,15 @@ object Parser extends Phase[Iterator[Token], Program] {
 		 * Identifier ::= <IDENTIFIER>
 		 */
 	def identifier: Identifier = {
-
-	  var id : Identifier = null
-
-		try {
-			id = new Identifier(currentToken.toString.unpack("IDKIND").get)
-		}
-		catch {
-			case nsee: NoSuchElementException => error("Unable to extract identifier: ", currentToken)
-		}
-		id.setPos(currentToken)
-		eat(IDKIND)
-		return id
+		var id = currentToken  
+	  eat(IDKIND)
+    try{
+	    return new Identifier(id.toString.unpack("IDKIND").get)
+	  } catch {
+	    case _ : NoSuchElementException => {
+	      fatal("Could not extract identifier", currentToken);
+	    }
+	  }
 	}
 	
 	/*

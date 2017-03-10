@@ -149,7 +149,7 @@ object Main {
         firstPrinted = Printer.apply(firstParsed)
         
         //Print to File
-        var printedFile = new File(validPath + file.toString().substring(64).toString() + ".print")
+        var printedFile = new File(file.toString() + ".print")
         var writer : BufferedWriter = null;
         if(!printedFile.exists){
           file.createNewFile()
@@ -169,7 +169,7 @@ object Main {
         
        }catch{
           case _ : Throwable => {
-          pass = false; println("Printer Error in file: " + file.toString().substring(57).toString()); 
+          pass = false; println("Printer Error in file: " + file.toString()); 
           System.exit(1)
         }
       }
@@ -207,9 +207,9 @@ object Main {
 
     
   def main(args: Array[String]): Unit = {
-    var input = Array("--test", "/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/Hej.p0");
-    validPath = "/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/"
-    val ctx = processOptions(args)
+    var input = Array("--token", "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Lab3/testprograms/lab3/valid/Simple.p0");
+    validPath = "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Lab3/testprograms/lab3/valid/"
+    val ctx = processOptions(input)
     val runTests = false;
     if (ctx.doTokens) {
       val iter = Lexer.run(ctx.file)(ctx)
