@@ -73,29 +73,6 @@ object Printer {
         codeBuilder.append(indent + strRep(VAR) + " " +  varDec.id.value + " : " + apply(varDec.tpe) + " = " + apply(varDec.expr) + ";\n")
       }
       
-      case mainMet: MainMethod => {
-         codeBuilder.append(strRep(OBJECT) + " " + mainMet.main.id.value)
-        if (!mainMet.main.args.isEmpty) {
-          codeBuilder.append((apply(mainMet.main.args.head)))
-        }
-        mainMet.main.args.drop(1).foreach(                              
-            a => codeBuilder.append(", " + apply(a))
-        )
-        codeBuilder.append( " extends " + apply(mainMet.parent) + " {\n")
-
-        mainMet.main.vars.foreach(
-            v => codeBuilder.append(apply(v))
-        )
-        if (!mainMet.main.exprs.isEmpty) {
-          codeBuilder.append(apply(mainMet.main.exprs.head) + ";")
-        }
-        mainMet.main.exprs.drop(1).foreach(                             
-            e => codeBuilder.append(apply(e) + ";\n")
-        )
-        codeBuilder.append(apply(mainMet.main.retExpr))
-        codeBuilder.append( "\n}\n")
-      }
-      
       //MAIN  --- USE LATER
       case mainDecl: MainDecl => {
          codeBuilder.append(strRep(OBJECT) + " " + mainDecl.obj.value)
