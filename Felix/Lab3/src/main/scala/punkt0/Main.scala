@@ -149,7 +149,7 @@ object Main {
         firstPrinted = Printer.apply(firstParsed)
         
         //Print to File
-        var printedFile = new File(printPath + file.toString().substring(64).toString() + ".print")
+        var printedFile = new File(validPath + file.toString().substring(64).toString() + ".print")
         var writer : BufferedWriter = null;
         if(!printedFile.exists){
           file.createNewFile()
@@ -205,20 +205,19 @@ object Main {
     }
   }
 
+    
   def main(args: Array[String]): Unit = {
     var input = Array("--test", "/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/Hej.p0");
-    printPath = "/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/prints/"
     validPath = "/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/"
     val ctx = processOptions(args)
     val runTests = false;
-    args.foreach(e=>println(e))
     if (ctx.doTokens) {
       val iter = Lexer.run(ctx.file)(ctx)
       while (iter.hasNext) {
         val tok = iter.next()
         println(tok+"("+tok.line + ":" + tok.column +")")
       }
-      
+  
     } else if (ctx.doAST){
       val iter = Lexer.run(ctx.file)(ctx)
       val parser = Parser.run(iter)(ctx)
@@ -233,6 +232,5 @@ object Main {
       runAllParserTests(ctx);
       runAllPrinterTests(ctx);
     }
-    
   }
 }
