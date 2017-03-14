@@ -24,7 +24,7 @@ object Main {
         ctx = ctx.copy(outDir = Some(new File(out)))
         processOption(args)
 
-      case "--token" :: args =>
+      case "--tokens" :: args =>
         ctx = ctx.copy(doTokens = true)
         processOption(args)
         
@@ -61,7 +61,7 @@ object Main {
     println("Usage: ./slacc [options] <file>")
     println("Options include:")
     println(" --help        displays this help")
-    println(" --token       displays the list of tokens")
+    println(" --tokens       displays the list of tokens")
     println(" --print       pretty-prints the program")
     println(" --ast         displays the AST")
     println(" --test        Run Tests {YOU NEED TO SPECIFY CORRECT PATH TO /VALID IN MAIN METHOD}")
