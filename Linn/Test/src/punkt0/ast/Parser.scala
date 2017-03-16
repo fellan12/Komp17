@@ -424,7 +424,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     
     /*
      * Parse Term
-     * Term ::= Factor (*|/) Factor ( (*|/) Factor)*
+     * Term ::= Bang (*|/) Bang ( (*|/) Bang)*
      */
     def term : ExprTree = {
       // Parse bang
@@ -451,8 +451,8 @@ object Parser extends Phase[Iterator[Token], Program] {
     }
     
     /*
-     * Parse Factor
-     * Factor ::= (!)? MethodCall
+     * Parse Bang
+     * Bang ::= (!)? MethodCall
      */
     def factor : ExprTree = {
       var retTree : ExprTree = null
@@ -469,7 +469,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     
     /*
      * Parse MethodCall
-     * MethodCall ::= Expr . Identifier ( Expression ( , Expression )* )
+     * MethodCall ::= Expr . Identifier ( 
      */
     def methodCall : ExprTree = {
       // Parse expr
@@ -652,7 +652,6 @@ object Parser extends Phase[Iterator[Token], Program] {
 	
 	/*
 	 * Parse IdentOrAssign
-	 * IdentOrAssign ::= Identifier | Identifier = Expression
 	 */
 	def identOrAssign: ExprTree = {
 	

@@ -12,6 +12,13 @@ object Lexer extends Phase[File, Iterator[Token]] {
   
   def run(f: File)(ctx: Context): Iterator[Token] = {
     val source = scala.io.Source.fromFile(f)
+    var bugging = false
+    
+    def debug(str: String): Unit = {
+      if (bugging) {
+        println(str)
+      }
+    }
    
     return new Iterator[Token] {
        var current = source.ch
@@ -64,16 +71,18 @@ object Lexer extends Phase[File, Iterator[Token]] {
 				
 		// Removes comment if it exists, otherwise returns DIV token
          	if (current == '/') {
+         	    debug("found /")
            		goForward;
+         	    debug("next is: " + current)
             		// One line comment
-           		if(current == '/') {
+           		if(!reachedEOF && current == '/') {
              			while (!reachedEOF && current != '\n') {
                				goForward
              			}
              			return next
            		}
         	 	// Block comment
-           		else if(current == '*') {
+           		else if(!reachedEOF && current == '*') {
              			var prev = current;
              			goForward;
              			try {
@@ -87,6 +96,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
            		}
            		// Division
            		else {
+           		    
              			token = new Token(DIV)
              			token.setPos(f, token_position)
              			return token
@@ -114,17 +124,20 @@ object Lexer extends Phase[File, Iterator[Token]] {
 				
 		// Int literal
 		else if (current.isDigit) {
-			if (current == '0') {
-				goForward
-				token = new INTLIT(0) // no leading zeros
-			} else {
-				var counter = 0;
+		  while(!reachedEOF && current == '0') {
+		      goForward
+		  }
+		  if (current.isDigit) {
+		    var counter = 0;
 				while(!reachedEOF && current.isDigit) {
 					counter = 10*counter + current.asDigit
 					goForward
 				}
 				token = new INTLIT(counter)
-			}
+		  }
+		  else {
+		    token = new INTLIT(0)
+		  }
 		}
 				
 		 // String literal
@@ -157,11 +170,11 @@ object Lexer extends Phase[File, Iterator[Token]] {
 		token
 	}
       
-       /*
-        * Tokenize a symbol and return it
-        */
-      	def match_Symbols(current : Char, token: Token) : TokenKind = {
-        	var oneMoreStep = true;
+ /*
+  * Tokenize a symbol and return it
+  */
+	def match_Symbols(current : Char, token: Token) : TokenKind = {
+  	var oneMoreStep = true;
 	 	var tok : TokenKind = current match {
 
   			//Braces, parenthesis and brackets
@@ -185,11 +198,14 @@ object Lexer extends Phase[File, Iterator[Token]] {
 					
   			// = and ==
   			case '=' => {
+  			  debug("found =")
   				goForward
+  				debug("current is: " + source.ch)
   				if (!reachedEOF && source.ch == '=') {
   					EQUALS
   				}
   				else {
+  				  debug("next was not = ")
   					oneMoreStep = false
   					EQSIGN
   				}
@@ -226,7 +242,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
 		} 
         
         	if (oneMoreStep) {
-			goForward
+			      goForward
 		}
         	return tok
       	}

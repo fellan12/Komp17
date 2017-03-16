@@ -1,33 +1,48 @@
-Program ::= ( ClassDeclaration )* MainDeclaration
+Program 			::= ( ClassDeclaration )* MainDeclaration
 
-ClassDeclaration ::= class Identifier ( extends Identifier )? { ( VarDeclaration )* ( MethodDeclaration )* }
+ClassDeclaration 	::= class Identifier ( extends Identifier )? { ( VarDeclaration )* ( MethodDeclaration )* }
 
-MainDeclaration	::=	object Identifier extends Identifier { ( VarDeclaration )* Expression ( ; Expression)* }
+MainDeclaration		::=	object Identifier extends Identifier { ( VarDeclaration )* Expression ( ; Expression)* }
 
 MethodDeclaration	::=	( override )? def Identifier ( ( Identifier : Type ( , Identifier : Type ) * )? ) : Type = { ( VarDeclaration )* Expression ( ; Expression)* }
 
-VarDeclaration	::=	var Identifier : Type = Expression ;
+VarDeclaration		::=	var Identifier : Type = Expression ;
 
-Type	::=	Boolean | Int | String | Unit | Identifier
+Type				::=	Boolean | Int | String | Unit | Identifier
 
-Expression	::=	Expression ( && | || | == | < | + | - | * | / ) Expression 
-			| Expression . Identifier ( ( Expression ( , Expression )* )? ) 
-			| <INTEGER_LITERAL> 
-			| " <STRING_LITERAL> " 
-			| true 
-			| false 
-			| IdentOrAssign
-			| this 
-			| null 
-			| new Identifier ( ) 
-			| ! Expression 
-			| ( Expression ) 
-			| { ( Expression ( ; Expression )* )? } 
-			| if ( Expression ) Expression ( else Expression )? 
-			| while ( Expression ) Expression 
-			| println ( Expression ) 
+Expression  		::= Or
+
+Or 					::= And || And ( || And )*
+
+And 				::= CompEqual && CompEqual ( && CompEqual )*
+
+CompEqual 			::= Comp ( < | == ) Comp ( ( < | == ) Comp )*
+
+Comp 				::= Term ( + | - ) Term ( ( + | - ) Term )*
+
+Term				::= Factor ( * | / ) Factor ( ( * | / ) Factor )*
+
+Factor				::= ( ! )? MethodCall
+
+MethodCall 			::= Expr . Identifier ( Expression ( , Expression )* )
+
+Expr 				::=
+
+Expression			::=	 	<INTEGER_LITERAL> 
+						| " <STRING_LITERAL> " 
+						| true 
+						| false 
+						| IdentOrAssign
+						| this 
+						| null 
+						| new Identifier ( ) 
+						| ( Expression ) 
+						| { ( Expression ( ; Expression )* )? } 
+						| if ( Expression ) Expression ( else Expression )? 
+						| while ( Expression ) Expression 
+						| println ( Expression ) 
 			
-IdentOrAssign ::= Identifier | Identifier = Expression
+IdentOrAssign 		::= Identifier | Identifier = Expression
 
 
 

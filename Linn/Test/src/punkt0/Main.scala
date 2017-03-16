@@ -24,7 +24,7 @@ object Main {
         ctx = ctx.copy(outDir = Some(new File(out)))
         processOption(args)
 
-      case "--tokens" :: args =>
+      case "--token" :: args =>
         ctx = ctx.copy(doTokens = true)
         processOption(args)
         
@@ -61,7 +61,7 @@ object Main {
     println("Usage: ./slacc [options] <file>")
     println("Options include:")
     println(" --help        displays this help")
-    println(" --tokens       displays the list of tokens")
+    println(" --token       displays the list of tokens")
     println(" --print       pretty-prints the program")
     println(" --ast         displays the AST")
     println(" --test        Run Tests {YOU NEED TO SPECIFY CORRECT PATH TO /VALID IN MAIN METHOD}")
@@ -89,7 +89,7 @@ object Main {
         parser = Parser.run(iter)(ctx)
       }catch{
         case _ : Throwable => {
-          pass = false; println("Syntax Error in file: " + file.toString()); 
+          pass = false; println("Syntax Error in file: " + file.toString().substring(57).toString()); 
           System.exit(1)
         }
       }
@@ -105,7 +105,7 @@ object Main {
           ok = true
         }else{
           ok = false
-          println("AST missmatch: " + file.toString())
+          println("AST missmatch: " + file.toString().substring(57).toString())
           for(i <- 1 to 20){
             testError += test.next()
             checkError += check.next()
@@ -119,10 +119,11 @@ object Main {
       }
       
       if(ok){
-        println("AST PASS: " + file.toString())
+        println("AST PASS: " + file.toString().substring(57).toString())
       }
     }
   }
+  
   
   def runAllPrinterTests(ctx : Context) : Unit = {
     var testFiles = List[File]()
@@ -149,7 +150,7 @@ object Main {
         firstPrinted = Printer.apply(firstParsed)
         
         //Print to File
-        var printedFile = new File(file.toString() + ".print")
+        var printedFile = new File(validPath + file.toString().substring(64).toString() + ".print")
         var writer : BufferedWriter = null;
         if(!printedFile.exists){
           file.createNewFile()
@@ -169,7 +170,7 @@ object Main {
         
        }catch{
           case _ : Throwable => {
-          pass = false; println("Printer Error in file: " + file.toString()); 
+          pass = false; println("Printer Error in file: " + file.toString().substring(57).toString()); 
           System.exit(1)
         }
       }
@@ -186,7 +187,7 @@ object Main {
           ok = true
         }else{
           ok = false
-          println("Print missmatch: " + file.toString())
+          println("Print missmatch: " + file.toString().substring(57).toString())
           for(i <- 1 to 20){
             testError += test.next()
             checkError += check.next()
@@ -200,16 +201,16 @@ object Main {
       }
       
       if(ok){
-        println("Print PASS: " + file.toString())
+        println("Print PASS: " + file.toString().substring(57).toString())
       }
     }
   }
 
     
   def main(args: Array[String]): Unit = {
-    var input = Array("--tokens", "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Lab3/testprograms/lab2/valid/hej.p0");
-    validPath = "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Lab3/testprograms/lab3/valid"
-    val ctx = processOptions(input)
+    var input = Array("--test", "/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/Hej.p0");
+    validPath = "/home/felix/Documents/Komp17/Felix/Lab3/testprograms/lab3/valid/"
+    val ctx = processOptions(args)
     val runTests = false;
     if (ctx.doTokens) {
       val iter = Lexer.run(ctx.file)(ctx)
