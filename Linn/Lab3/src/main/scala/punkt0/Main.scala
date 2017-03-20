@@ -208,7 +208,7 @@ object Main {
     
   def main(args: Array[String]): Unit = {
     var input = Array("--tokens", "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Lab3/testprograms/lab2/valid/hej.p0");
-    validPath = "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Lab3/testprograms/lab3/valid"
+    validPath = "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Lab3/testprograms/lab3/valid/"
     val ctx = processOptions(input)
     val runTests = false;
     if (ctx.doTokens) {

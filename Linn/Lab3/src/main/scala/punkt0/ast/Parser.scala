@@ -522,13 +522,13 @@ object Parser extends Phase[Iterator[Token], Program] {
         }
         // Expr ::= <INTEGER_LITERAL>
         case INTLITKIND => {
-          retTree = new IntLit(currentToken.toString.unpack("INTLITKIND").get.toInt)
+          retTree = new IntLit(currentToken.toString.unpack("INT").get.toInt)
           eat(INTLITKIND)
           retTree.setPos(currentToken)
         }
         // Expr ::= " <STRING_LITERAL> "
         case STRLITKIND => {
-          retTree = new StringLit(currentToken.toString.unpack("STRLITKIND").get)
+          retTree = new StringLit(currentToken.toString.unpack("STR").get)
           eat(STRLITKIND)
           retTree.setPos(currentToken)
         }
@@ -642,7 +642,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 		var id = currentToken  
 	  eat(IDKIND)
     try{
-	    return new Identifier(id.toString.unpack("IDKIND").get)
+	    return new Identifier(id.toString.unpack("ID").get)
 	  } catch {
 	    case _ : NoSuchElementException => {
 	      fatal("Could not extract identifier", currentToken);
@@ -656,7 +656,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 	 */
 	def identOrAssign: ExprTree = {
 	
-	  var id = new Identifier(currentToken.toString.unpack("IDKIND").get)
+	  var id = new Identifier(currentToken.toString.unpack("ID").get)
 
 	  eat(IDKIND)
 	

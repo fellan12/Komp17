@@ -11,6 +11,8 @@ Expected verdict: valid
    Failed 1 out of 1 tests.
       On 1 tests: Wrong output on '--tokens'.
 
+// 
+
 In category Lexer: intliterals:
 Description: tests for integer literals
 Expected verdict: valid
@@ -29,12 +31,27 @@ Expected verdict: invalid
    Failed 1 out of 1 tests.
       On 1 tests: You marked the program as 'valid'.
 
+// Testa alla 
+
 In category Lexer: tokens-not-in-separate-lines:
 Description: test that each token is printed on a separate line
 Expected verdict: valid
    Report summary:
    Failed 1 out of 1 tests.
       On 1 tests: Wrong output on '--tokens'.
+
+
+// fixed /**/
+// fixed /*  */hej --> "ej" instead of "hej"
+//tested:
+/**/
+/* */
+/* */a
+/* */abc
+/* hej */a
+/*hej*/a
+a/*hej*/
+abc/*hej*/
 
 In category Lexer: comments:
 Description: tests for comments

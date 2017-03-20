@@ -7,9 +7,6 @@ import java.io.File
 object Lexer extends Phase[File, Iterator[Token]] {
   import Reporter._
   
-  
-  
-  
   def run(f: File)(ctx: Context): Iterator[Token] = {
     val source = scala.io.Source.fromFile(f)
     var bugging = false
@@ -53,121 +50,142 @@ object Lexer extends Phase[File, Iterator[Token]] {
         * Return next token
         */
         def next : Token = {
+          debug("next startar med: " + current)
+          debug("EOF" + reachedEOF)
 	        var token = new Token(BAD)
 	        var token_position = source.pos
        				
-		if (reachedEOF) {
-			token = new Token(EOF)
-			token.setPos(f, source.pos)
-			EOFPrinted = true
-			return token
-		}
+      		if (reachedEOF) {
+      		  debug("setEOF")
+      			token = new Token(EOF)
+      			token.setPos(f, source.pos)
+      			EOFPrinted = true
+      			return token
+      		}
+      
+      		// Skip whitespace
+      		if (!reachedEOF && current.isWhitespace) {
+      			goForward
+      			return next
+      		}
+      				
+      		// Removes comment if it exists, otherwise returns DIV token
+             	if (current == '/') {
+             	    debug("found /")
+               		goForward;
+             	    debug("next is: " + current)
+                		// One line comment
+               		if(!reachedEOF && current == '/') {
+                 			while (!reachedEOF && current != '\n') {
+                   				goForward
+                 			}
+                 			return next
+               		}
+            	 	// Block comment
+               		else if(!reachedEOF && current == '*') {
+               		    debug("found block comment")
+                
+                 			goForward;
+               		    debug("current: " + current)
+             
+                 			  var curr1 : String = current.toString()
+                 			  goForward
+                 			  var curr2 : String = current.toString()
+                 			  var tmp : String = curr1 + curr2
+                 			  while (!reachedEOF && tmp != "*/") {
+                 			    curr1 = curr2.toString()
+                 			    goForward
+                 			    curr2 = current.toString()
+                 			    tmp = curr1 + curr2
+                 			    debug("tmp: " + tmp)
+                 			  }
+                 			  if (tmp != "*/") {
+                 			    debug("COmment Not cloese")
+                 			    error("Block comment not closed", token.setPos(f, token_position))
+                 			  } else {
+                 			    goForward
+                 			  }
 
-		// Skip whitespace
-		if (!reachedEOF && current.isWhitespace) {
-			goForward
-			return next
-		}
-				
-		// Removes comment if it exists, otherwise returns DIV token
-         	if (current == '/') {
-         	    debug("found /")
-           		goForward;
-         	    debug("next is: " + current)
-            		// One line comment
-           		if(!reachedEOF && current == '/') {
-             			while (!reachedEOF && current != '\n') {
-               				goForward
-             			}
-             			return next
-           		}
-        	 	// Block comment
-           		else if(!reachedEOF && current == '*') {
-             			var prev = current;
-             			goForward;
-             			try {
-               				while (source.next != '*' || source.next != '/') {}
-             			}
-             			catch {
-               				case nsee: NoSuchElementException => 
-               				error("Block comment not closed", token.setPos(f, token_position))
-             			}          
-             			return next
-           		}
-           		// Division
-           		else {
-           		    
-             			token = new Token(DIV)
-             			token.setPos(f, token_position)
-             			return token
-           		}
-          
-         	}
-        
-		// ID or keyword
-		if (current.isLetter) { // must start with a letter
-           		var str = ""; 
-           		while(!reachedEOF && (current.isLetterOrDigit || current == '_')) {
-             			str += current
-             			goForward
-           		}
-           		var tkRes = match_ID_or_Keyword(str)
-          
-           		if(tkRes == IDKIND ) {
-             			token = new ID(str)
-             			token.setPos(f, token_position)
-           		} else {
-             			token = new Token(tkRes)
-        			 token.setPos(f, token_position)
-           		}
-		}
-				
-		// Int literal
-		else if (current.isDigit) {
-		  while(!reachedEOF && current == '0') {
-		      goForward
-		  }
-		  if (current.isDigit) {
-		    var counter = 0;
-				while(!reachedEOF && current.isDigit) {
-					counter = 10*counter + current.asDigit
-					goForward
-				}
-				token = new INTLIT(counter)
-		  }
-		  else {
-		    token = new INTLIT(0)
-		  }
-		}
-				
-		 // String literal
-	 	else if(current == '"') {
-	   		val b = new StringBuffer
-		 	goForward // skip leading '"'
+                   			
 
-		 	while (!reachedEOF && current != '"') {
-		   		if (current == '\n') {
-			   		error("String literal cannot contain a newline character.", token.setPos(f, source.pos))
-			 	}
-			 	b.append(current)
-			 	goForward
-		 	}
-
-		 	if(current == '"') {
-			 	goForward //Skip the trailing '"'
-				 token = new STRLIT(b.toString)
-		 	} else {
-			 	error("String literal not closed with \".", token.setPos(f, source.pos))
-		 	}
-	 	}
-
-		// Handle symbols
-		else {
-           		token = new Token(match_Symbols(current, token))
-		}
-				
-		token.setPos(f, token_position)
-		token
+                 			
+                 			debug("reachedEOF " + reachedEOF)
+                 			debug("current: " + current)
+                 			return next
+               		}
+               		// Division
+               		else {
+               		    
+                 			token = new Token(DIV)
+                 			token.setPos(f, token_position)
+                 			return token
+               		}
+              
+             	}
+              
+      		// ID or keyword
+      		if (current.isLetter) { // must start with a letter
+                 		var str = ""; 
+                 		while(!reachedEOF && (current.isLetterOrDigit || current == '_')) {
+                   			str += current
+                   			goForward
+                 		}
+                 		var tkRes = match_ID_or_Keyword(str)
+                
+                 		if(tkRes == IDKIND ) {
+                   			token = new ID(str)
+                   			token.setPos(f, token_position)
+                 		} else {
+                   			token = new Token(tkRes)
+              			 token.setPos(f, token_position)
+                 		}
+      		}
+      				
+      		// Int literal
+      		else if (current.isDigit) {
+      		  if(!reachedEOF && current == '0') {
+      		      goForward
+      		      token = new INTLIT(0)
+      		  }
+      		  else {
+      		    var counter = 0;
+      				while(!reachedEOF && current.isDigit) {
+      					counter = 10*counter + current.asDigit
+      					goForward
+      				}
+      				token = new INTLIT(counter)
+      		  }
+      
+      		}
+      				
+      		 // String literal
+      	 	else if (current == '"') {
+      	   		val b = new StringBuffer
+      		 	goForward // skip leading '"'
+      
+      		 	while (!reachedEOF && current != '"') {
+      		   		if (current == '\n') {
+      			   		error("String literal cannot contain a newline character.", token.setPos(f, source.pos))
+      			 	}
+      			 	b.append(current)
+      			 	goForward
+      		 	}
+      
+      		 	if(current == '"') {
+      			 	goForward //Skip the trailing '"'
+      				 token = new STRLIT(b.toString)
+      		 	} else {
+      			 	error("String literal not closed with \".", token.setPos(f, source.pos))
+      		 	}
+      	 	}
+      
+      		// Handle symbols
+      		else {
+              token = new Token(match_Symbols(current, token))
+      		}
+      				
+      		token.setPos(f, token_position)
+      		token
 	}
       
  /*
@@ -219,6 +237,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
   			  }
   			  else {
   			    error("Illegal 'OR' operator syntax.", token.setPos(f, source.pos))
+  			    oneMoreStep = false
   			    BAD
   			  } 
   			}
@@ -230,6 +249,7 @@ object Lexer extends Phase[File, Iterator[Token]] {
   				}
   				else {
   					error("Illegal 'AND' operator syntax.", token.setPos(f, source.pos))
+  					oneMoreStep = false
   					BAD
   				}
 			  }
