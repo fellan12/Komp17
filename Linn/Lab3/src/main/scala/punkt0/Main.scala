@@ -234,5 +234,7 @@ object Main {
       runAllParserTests(ctx);
       runAllPrinterTests(ctx);
     }
+    Reporter.terminateIfErrors()
   }
+  
 }
