@@ -337,6 +337,7 @@ object Parser extends Phase[Iterator[Token], Program] {
           case OR => {
             retTree = new Or(lhs,rhs)
           }
+          case _ => error("expected OR sign", currentToken)
         }
       }
       retTree.setPos(currentToken)
@@ -361,6 +362,7 @@ object Parser extends Phase[Iterator[Token], Program] {
           case AND => {
             retTree = new And(lhs,rhs)
           }
+          case _ => error("expected AND sign", currentToken);
         }
       }
       retTree.setPos(currentToken)
@@ -388,6 +390,8 @@ object Parser extends Phase[Iterator[Token], Program] {
           case EQUALS => {
             retTree = new Equals(lhs,rhs)
           }
+          case _ => error("expected LESSTHAN or EQUALS sign", currentToken);
+
         }
       }
       retTree.setPos(currentToken)
@@ -416,6 +420,7 @@ object Parser extends Phase[Iterator[Token], Program] {
           case MINUS => {
             retTree = new Minus(lhs, rhs)
           }
+          case _ => error("expected PLUS or MINUS sign", currentToken);
         }
       }
       retTree.setPos(currentToken)
@@ -424,7 +429,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     
     /*
      * Parse Term
-     * Term ::= Bang (*|/) Bang ( (*|/) Bang)*
+     * Term ::= Factor (*|/) Factor ( (*|/) Factor)*
      */
     def term : ExprTree = {
       // Parse bang
@@ -444,6 +449,7 @@ object Parser extends Phase[Iterator[Token], Program] {
           case DIV => {
             retTree = new Div(lhs, rhs)
           }
+          case _ => error("expected TIMES or DIV sign", currentToken);
         }
       }
       retTree.setPos(currentToken)
@@ -451,8 +457,8 @@ object Parser extends Phase[Iterator[Token], Program] {
     }
     
     /*
-     * Parse Bang
-     * Bang ::= (!)? MethodCall
+     * Parse Factor
+     * Factor ::= (!)? MethodCall
      */
     def factor : ExprTree = {
       var retTree : ExprTree = null
@@ -469,7 +475,7 @@ object Parser extends Phase[Iterator[Token], Program] {
     
     /*
      * Parse MethodCall
-     * MethodCall ::= Expr . Identifier ( 
+     * MethodCall ::= Expr . Identifier ( Expression ( , Expression )* )
      */
     def methodCall : ExprTree = {
       // Parse expr
@@ -522,13 +528,13 @@ object Parser extends Phase[Iterator[Token], Program] {
         }
         // Expr ::= <INTEGER_LITERAL>
         case INTLITKIND => {
-          retTree = new IntLit(currentToken.toString.unpack("INTLITKIND").get.toInt)
+          retTree = new IntLit(currentToken.toString.unpack("INT").get.toInt)
           eat(INTLITKIND)
           retTree.setPos(currentToken)
         }
         // Expr ::= " <STRING_LITERAL> "
         case STRLITKIND => {
-          retTree = new StringLit(currentToken.toString.unpack("STRLITKIND").get)
+          retTree = new StringLit(currentToken.toString.unpack("STR").get)
           eat(STRLITKIND)
           retTree.setPos(currentToken)
         }
@@ -628,7 +634,7 @@ object Parser extends Phase[Iterator[Token], Program] {
           retTree.setPos(currentToken)
         }
         case _ => {
-          fatal("Invalid Expression", currentToken)
+          fatal("Invalid KEYWORD or ID", currentToken)
         }       
       }
       retTree
@@ -642,7 +648,7 @@ object Parser extends Phase[Iterator[Token], Program] {
 		var id = currentToken  
 	  eat(IDKIND)
     try{
-	    return new Identifier(id.toString.unpack("IDKIND").get)
+	    return new Identifier(id.toString.unpack("ID").get)
 	  } catch {
 	    case _ : NoSuchElementException => {
 	      fatal("Could not extract identifier", currentToken);
@@ -652,10 +658,11 @@ object Parser extends Phase[Iterator[Token], Program] {
 	
 	/*
 	 * Parse IdentOrAssign
+	 * IdentOrAssign ::= Identifier | Identifier = Expression
 	 */
 	def identOrAssign: ExprTree = {
 	
-	  var id = new Identifier(currentToken.toString.unpack("IDKIND").get)
+	  var id = new Identifier(currentToken.toString.unpack("ID").get)
 
 	  eat(IDKIND)
 	
