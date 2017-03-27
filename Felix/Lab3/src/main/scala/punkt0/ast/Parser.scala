@@ -337,7 +337,6 @@ object Parser extends Phase[Iterator[Token], Program] {
           case OR => {
             retTree = new Or(lhs,rhs)
           }
-          case _ => error("expected OR sign", currentToken)
         }
       }
       retTree.setPos(currentToken)
@@ -362,7 +361,6 @@ object Parser extends Phase[Iterator[Token], Program] {
           case AND => {
             retTree = new And(lhs,rhs)
           }
-          case _ => error("expected AND sign", currentToken);
         }
       }
       retTree.setPos(currentToken)
@@ -390,8 +388,6 @@ object Parser extends Phase[Iterator[Token], Program] {
           case EQUALS => {
             retTree = new Equals(lhs,rhs)
           }
-          case _ => error("expected LESSTHAN or EQUALS sign", currentToken);
-
         }
       }
       retTree.setPos(currentToken)
@@ -420,7 +416,6 @@ object Parser extends Phase[Iterator[Token], Program] {
           case MINUS => {
             retTree = new Minus(lhs, rhs)
           }
-          case _ => error("expected PLUS or MINUS sign", currentToken);
         }
       }
       retTree.setPos(currentToken)
@@ -449,7 +444,6 @@ object Parser extends Phase[Iterator[Token], Program] {
           case DIV => {
             retTree = new Div(lhs, rhs)
           }
-          case _ => error("expected TIMES or DIV sign", currentToken);
         }
       }
       retTree.setPos(currentToken)
@@ -634,7 +628,7 @@ object Parser extends Phase[Iterator[Token], Program] {
           retTree.setPos(currentToken)
         }
         case _ => {
-          fatal("Invalid KEYWORD or ID", currentToken)
+          fatal("Invalid Expression", currentToken)
         }       
       }
       retTree

@@ -39,6 +39,9 @@ object Lexer extends Phase[File, Iterator[Token]] {
         * Checks if characters left
         */
        def hasNext  = {
+        if(EOFPrinted && errorDetected){
+          terminateIfErrors()
+        }
         !EOFPrinted  //END OF FILE  
         
       }
@@ -57,10 +60,6 @@ object Lexer extends Phase[File, Iterator[Token]] {
       			token = new Token(EOF)
       			token.setPos(f, source.pos)
       			EOFPrinted = true
-            if(EOFPrinted && errorDetected){
-              terminateIfErrors()
-            }
-            terminateIfErrors()
       			return token
       		}
       

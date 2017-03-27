@@ -52,26 +52,6 @@ object Main {
     if (ctx.doHelp) {
       displayHelp()
       sys.exit(0)
-    } else if (ctx.doTokens) {
-      val iter = Lexer.run(ctx.file)(ctx)
-      while (iter.hasNext) {
-        val tok = iter.next()
-        println(tok+"("+tok.line + ":" + tok.column +")")
-      }
-  
-    } else if (ctx.doAST){
-      val iter = Lexer.run(ctx.file)(ctx)
-      val parser = Parser.run(iter)(ctx)
-      println(parser)
-      
-    } else if (ctx.doPrint){
-      val iter = Lexer.run(ctx.file)(ctx)
-      val parser = Parser.run(iter)(ctx)
-      println(Printer.apply(parser))
-      
-    } else if (ctx.doTest){
-      runAllParserTests(ctx);
-      runAllPrinterTests(ctx);
     }
 
     ctx
@@ -81,11 +61,10 @@ object Main {
     println("Usage: ./slacc [options] <file>")
     println("Options include:")
     println(" --help        displays this help")
-    println(" --tokens      displays the list of tokens")
+    println(" --tokens       displays the list of tokens")
     println(" --print       pretty-prints the program")
     println(" --ast         displays the AST")
-    println(" --test        Run Tests (If the testprograms folder has been changed in some way ")
-    println("               you need to specify the new path to the testprograms's lab3 valid folder) ")
+    println(" --test        Run Tests {YOU NEED TO SPECIFY CORRECT PATH TO /VALID IN MAIN METHOD}")
     println(" -d <outdir>   generates class files in the specified directory")
   }
   
@@ -228,10 +207,34 @@ object Main {
 
     
   def main(args: Array[String]): Unit = {
-    var input = Array("--tokens", "./Hej.p0");
-    validPath = "./testprograms/lab3/valid/"
+    //var input = Array("--tokens", "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Lab3/testprograms/lab2/valid/hej.p0");
+    //validPath = "/home/bergelid/Dropbox/KTH/År 4/kompkons/Komp17/Linn/Lab3/testprograms/lab3/valid/"
+    var input = Array("--tokens", "/home/felix/Documents/Komp17/Linn/Lab3/Hej.p0");
+    validPath = "/home/felix/Documents/Komp17/Linn/Lab3/testprograms/lab3/valid/"
     val ctx = processOptions(args)
     val runTests = false;
-    
+    if (ctx.doTokens) {
+      val iter = Lexer.run(ctx.file)(ctx)
+      while (iter.hasNext) {
+        val tok = iter.next()
+        println(tok+"("+tok.line + ":" + tok.column +")")
+      }
+  
+    } else if (ctx.doAST){
+      val iter = Lexer.run(ctx.file)(ctx)
+      val parser = Parser.run(iter)(ctx)
+      println(parser)
+      
+    } else if (ctx.doPrint){
+      val iter = Lexer.run(ctx.file)(ctx)
+      val parser = Parser.run(iter)(ctx)
+      println(Printer.apply(parser))
+      
+    } else if (ctx.doTest){
+      runAllParserTests(ctx);
+      runAllPrinterTests(ctx);
+    }
+    Reporter.terminateIfErrors()
   }
+  
 }
